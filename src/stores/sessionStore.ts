@@ -128,8 +128,7 @@ export const useSessionStore = create<SessionState>()((set, get) => ({
   contentSearchQuery: '',
 
   fetchSessions: async () => {
-    const isFirstLoad = get().sessions.length === 0;
-    if (isFirstLoad) set({ isLoading: true });
+    set({ isLoading: true });
     try {
       const diskSessions = await bridge.listSessions();
       const existing = get().sessions;

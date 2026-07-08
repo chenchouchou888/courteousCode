@@ -148,6 +148,17 @@ export function ConversationList() {
     } catch { return new Set(); }
   });
 
+  // Refresh animation
+  const [refreshing, setRefreshing] = useState(false);
+  const handleRefresh = useCallback(async () => {
+    setRefreshing(true);
+    const started = Date.now();
+    await fetchSessions();
+    const elapsed = Date.now() - started;
+    const remaining = Math.max(0, 400 - elapsed);
+    setTimeout(() => setRefreshing(false), remaining);
+  }, [fetchSessions]);
+
   // Multi-select
   const [multiSelect, setMultiSelect] = useState(false);
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
@@ -818,11 +829,24 @@ export function ConversationList() {
 
       {/* Refresh button */}
       <button
-        onClick={fetchSessions}
+        onClick={handleRefresh}
+        disabled={refreshing}
         className="mx-2 mt-2 py-1.5 rounded-md text-[12px]
           text-text-muted hover:text-text-primary
-          hover:bg-bg-secondary transition-smooth"
+          hover:bg-bg-secondary transition-smooth
+          flex items-center justify-center gap-1.5
+          disabled:opacity-50"
       >
+        <svg
+          width="12" height="12" viewBox="0 0 24 24"
+          fill="none" stroke="currentColor" strokeWidth="2"
+          strokeLinecap="round" strokeLinejoin="round"
+          className={refreshing ? 'animate-spin' : ''}
+        >
+          <polyline points="23 4 23 10 17 10" />
+          <polyline points="1 20 1 14 7 14" />
+          <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15" />
+        </svg>
         {t('conv.refresh')}
       </button>
 
