@@ -1,15 +1,9 @@
 import { useSettingsStore } from '../../stores/settingsStore';
 
-/** Default "C" icon SVG — matches the courteousCode app icon */
+/** Default app icon — uses the courteousCode logo PNG */
 function DefaultIcon() {
   return (
-    <svg width="100%" height="100%" viewBox="0 0 171 171" fill="none">
-      <rect width="171" height="171" rx="38.5" className="fill-accent" />
-      <path
-        d="M85.5 48C63.5 48 48 63.5 48 85.5S63.5 123 85.5 123c13 0 24.5-5 33-13l-12-14c-5.5 5-12.8 8-21 8-16 0-28-12-28-28s12-28 28-28c8.2 0 15.5 3 21 8l12-14c-8.5-8-20-13-33-13z"
-        className="fill-white dark:fill-black"
-      />
-    </svg>
+    <img src="/app-logo.png" alt="courteousCode" className="w-full h-full object-cover" />
   );
 }
 
@@ -30,7 +24,7 @@ export function AiAvatar({ size, rounded = 'rounded-[10px]', className = '' }: A
   const avatarUrl = useSettingsStore((s) => s.aiAvatarUrl);
 
   // When custom image is set, use transparent bg to avoid black border bleed on rounded corners
-  const bgClass = avatarUrl ? 'bg-transparent' : 'bg-black dark:bg-white';
+  const bgClass = 'bg-transparent';
 
   return (
     <div className={`${size} ${rounded} ${bgClass}

@@ -222,10 +222,7 @@ function SettingsFooter() {
         border-t border-border-subtle bg-bg-secondary/30 flex-shrink-0">
         {/* Left: version */}
         <span className="text-xs text-text-tertiary flex items-center gap-1.5">
-          <svg width="11" height="11" viewBox="0 0 171 171" fill="none" className="flex-shrink-0 opacity-60">
-            <rect width="171" height="171" rx="38.5" fill="currentColor" />
-            <path d="M85.5 48C63.5 48 48 63.5 48 85.5S63.5 123 85.5 123c13 0 24.5-5 33-13l-12-14c-5.5 5-12.8 8-21 8-16 0-28-12-28-28s12-28 28-28c8.2 0 15.5 3 21 8l12-14c-8.5-8-20-13-33-13z" fill="var(--color-bg-secondary, #131417)" />
-          </svg>
+          <img src="/app-logo.png" alt="" className="w-[14px] h-[14px] flex-shrink-0 rounded-sm opacity-80" />
           {APP_NAME} {appVersion ? `v${appVersion}` : '...'}
         </span>
 
