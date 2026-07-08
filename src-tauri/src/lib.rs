@@ -93,7 +93,7 @@ struct WatcherManager {
 
 /// Shared app data directory name — all editions (COURTEOUSCODE / TCAlpha) use the same
 /// directory so they share a single CLI installation and settings.
-const APP_DATA_DIR_NAME: &str = "com.tinyzhuang.courteouscode";
+const APP_DATA_DIR_NAME: &str = "com.courteouscode.app";
 
 /// GCS bucket for Claude Code releases.
 const CLI_GCS_BASE: &str = "https://storage.googleapis.com/claude-code-dist-86c565f3-f756-42ad-8dfa-d59b1c096819/claude-code-releases";
@@ -3380,7 +3380,7 @@ fn extract_session_info(path: &std::path::Path) -> (String, String) {
 /// Decode project directory name back to readable path.
 ///
 /// Claude CLI encodes paths by replacing `/` with `-`, e.g.:
-///   /Users/tinyzhuang/Desktop/ppt-maker → -Users-tinyzhuang-Desktop-ppt-maker
+///   /Users/user/Desktop/ppt-maker → -Users-user-Desktop-ppt-maker
 ///
 /// Simple `.replace('-', '/')` fails when directory names contain hyphens
 /// (e.g. "ppt-maker" becomes "ppt/maker").

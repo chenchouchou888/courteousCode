@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Run repeated TOKENICODE E2E phases and record minimal failure rows.
+# Run repeated courteousCode E2E phases and record minimal failure rows.
 
 set -euo pipefail
 cd "$(dirname "$0")/../.."

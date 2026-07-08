@@ -2,12 +2,12 @@
 set -euo pipefail
 
 # ============================================================
-# TOKENICODE / TCAlpha macOS Local Build Script
+# courteousCode / TCAlpha macOS Local Build Script
 # Builds, signs, notarizes for both aarch64 and x86_64
 # Then uploads artifacts to the existing GitHub Draft Release
 #
 # Usage:
-#   ./scripts/build-macos-local.sh              # stable (TOKENICODE)
+#   ./scripts/build-macos-local.sh              # stable (courteousCode)
 #   EDITION=alpha ./scripts/build-macos-local.sh # alpha  (CourteousAlpha)
 # ============================================================
 
@@ -23,7 +23,7 @@ if [ "$EDITION" = "alpha" ]; then
   TAURI_EXTRA_ARGS="--config editions/alpha/tauri.alpha.conf.json"
 else
   TAG="v$VERSION"
-  PRODUCT_NAME="TOKENICODE"
+  PRODUCT_NAME="courteousCode"
   TAURI_EXTRA_ARGS=""
 fi
 
@@ -53,7 +53,7 @@ echo "============================================"
 
 export APPLE_SIGNING_IDENTITY APPLE_ID APPLE_PASSWORD APPLE_TEAM_ID
 export TAURI_SIGNING_PRIVATE_KEY
-TAURI_SIGNING_PRIVATE_KEY="$(cat "$HOME/.tauri/tokenicode.key")"
+TAURI_SIGNING_PRIVATE_KEY="$(cat "$HOME/.tauri/courteouscode.key")"
 export TAURI_SIGNING_PRIVATE_KEY_PASSWORD
 export EDITION
 
@@ -91,7 +91,7 @@ echo "[5/6] Collecting artifacts..."
 
 AARCH64_BUNDLE="src-tauri/target/aarch64-apple-darwin/release/bundle"
 X86_64_BUNDLE="src-tauri/target/x86_64-apple-darwin/release/bundle"
-STAGING="/tmp/tokenicode-release-$TAG"
+STAGING="/tmp/courteouscode-release-$TAG"
 rm -rf "$STAGING"
 mkdir -p "$STAGING"
 
@@ -126,7 +126,7 @@ done
 echo ""
 echo "============================================"
 echo " Build complete!"
-echo " Draft Release: https://github.com/yiliqi78/TOKENICODE/releases/tag/$TAG"
+echo " Draft Release: https://github.com/chenchouchou888/courteousCode/releases/tag/$TAG"
 echo ""
 echo " Next steps:"
 echo "   1. Verify artifacts on the release page"

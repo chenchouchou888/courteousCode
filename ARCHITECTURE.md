@@ -182,7 +182,7 @@ Environment variables injected:
 ### Binary Discovery
 
 `find_claude_binary()` searches in priority order:
-1. App-local download directory (`~/Library/Application Support/com.tinyzhuang.courteouscode/cli/`)
+1. App-local download directory (`~/Library/Application Support/com.courteouscode.app/cli/`)
 2. npm-global/bin (local `--prefix` install)
 3. System PATH (`which claude`)
 4. Claude Desktop App bundled CLI (versioned directories)
@@ -388,7 +388,7 @@ pnpm tauri build
 - Max output tokens: 64,000 (env var override)
 - Node.js LTS for local install: v22.22.0
 - Title generation model: `claude-haiku-4-5-20251001`
-- Data dirs: `~/.courteouscode/` (persistent), `~/Library/.../com.tinyzhuang.courteouscode/` (app data)
+- Data dirs: `~/.courteouscode/` (persistent), `~/Library/.../com.courteouscode.app/` (app data)
 
 ### Cross-Platform Notes
 

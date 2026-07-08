@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# run-e2e.sh — run TOKENICODE E2E suites and store stable reports.
+# run-e2e.sh — run courteousCode E2E suites and store stable reports.
 #
 # Usage:
 #   bash .test/scripts/run-e2e.sh [--phase all|1|2|3] [runner flags]
@@ -15,7 +15,7 @@
 set -euo pipefail
 cd "$(dirname "$0")/../.."
 
-CLI=(node scripts/tokenicode-cli.mjs)
+CLI=(node scripts/courteouscode-cli.mjs)
 RUNNER=(node scripts/run-tests.mjs)
 TIMESTAMP=$(date +%Y-%m-%d_%H-%M-%S)
 REPORT_DIR=".test/runs/$TIMESTAMP-e2e"
@@ -165,24 +165,24 @@ run_suite() {
   fi
 }
 
-echo "=== TOKENICODE E2E Test Run — $TIMESTAMP ==="
+echo "=== courteousCode E2E Test Run — $TIMESTAMP ==="
 echo "Report directory: $REPORT_DIR"
 echo ""
 echo "Checking test harness connectivity..."
 if ! "${CLI[@]}" ping > /dev/null 2>&1; then
-  echo "Cannot connect to TOKENICODE test socket. Start the debug app with: pnpm tauri dev"
+  echo "Cannot connect to courteousCode test socket. Start the debug app with: pnpm tauri dev"
   exit 1
 fi
 echo "Connected"
 
-mkdir -p /tmp/tokenicode-test
-if [ ! -f /tmp/tokenicode-test/README.md ]; then
+mkdir -p /tmp/courteouscode-test
+if [ ! -f /tmp/courteouscode-test/README.md ]; then
   {
-    echo "# TOKENICODE test fixture"
+    echo "# courteousCode test fixture"
     echo "Auto-created by .test/scripts/run-e2e.sh. Keep this directory non-empty during test runs."
-  } > /tmp/tokenicode-test/README.md
+  } > /tmp/courteouscode-test/README.md
 fi
-echo "Test fixture: /tmp/tokenicode-test"
+echo "Test fixture: /tmp/courteouscode-test"
 echo ""
 
 if [ "$PHASE" = "all" ] || [ "$PHASE" = "1" ]; then
