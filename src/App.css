@@ -1,0 +1,463 @@
+@import "tailwindcss";
+@plugin "@tailwindcss/typography";
+
+/* ================================================================
+   Light mode — Linear/Vercel-style neutral, single blue accent
+   ================================================================ */
+@theme {
+  --color-bg-primary: #FAFAFB;
+  --color-bg-secondary: #F2F3F5;
+  --color-bg-tertiary: #E7E9EC;
+  --color-bg-chat: #FFFFFF;
+  --color-bg-sidebar: #F5F6F8;
+  --color-bg-input: #FFFFFF;
+  --color-bg-user-msg: #3B6FE0;
+  --color-bg-assistant-msg: #F5F6F8;
+  --color-bg-tool: #F0F1F3;
+  --color-bg-thinking: #F2F3F5;
+  --color-bg-card: #FFFFFF;
+  --color-bg-nav-active: rgba(59, 111, 224, 0.06);
+
+  --color-text-primary: #1A1C20;
+  --color-text-secondary: #52565E;
+  --color-text-tertiary: #85888F;
+  --color-text-inverse: #FFFFFF;
+  --color-text-muted: #6E7178;
+
+  --color-border: #E4E5E9;
+  --color-border-subtle: #ECEDF0;
+  --color-border-focus: #3B6FE0;
+
+  --color-accent: #3B6FE0;
+  --color-accent-light: #5C8AF0;
+  --color-accent-hover: #2E5AC4;
+  --color-accent-glow: rgba(59, 111, 224, 0.10);
+  --color-success: #10b981;
+  --color-error: #ef4444;
+  --color-warning: #f59e0b;
+
+  --color-gradient-start: #3B6FE0;
+  --color-gradient-mid: #4C7DEB;
+  --color-gradient-end: #5C8AF0;
+
+  /* Syntax highlighting — decoupled from semantic colors */
+  --color-syntax-keyword:  #7C3AED;
+  --color-syntax-string:   #059669;
+  --color-syntax-number:   #D97706;
+  --color-syntax-function: #2563EB;
+  --color-syntax-comment:  #9CA3AF;
+  --color-syntax-type:     #0891B2;
+  --color-syntax-builtin:  #6366F1;
+  --color-syntax-delete:   #DC2626;
+  --color-syntax-meta:     #78716C;
+
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.04),
+    0 1px 2px rgba(0, 0, 0, 0.02);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.06),
+    0 2px 4px rgba(0, 0, 0, 0.03);
+  --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.08),
+    0 4px 8px rgba(0, 0, 0, 0.04);
+  --shadow-glow: 0 0 20px rgba(59, 111, 224, 0.10);
+
+  /* Icon slash color — contrasts against accent-colored icon backgrounds */
+  --color-icon-slash: white;
+}
+
+@variant dark (&:where(.dark, .dark *));
+
+/* ================================================================
+   Dark mode (default) — Linear-style layered dark grey, single blue accent
+   ================================================================ */
+.dark {
+  --color-bg-primary: #0B0C0E;
+  --color-bg-secondary: #131417;
+  --color-bg-tertiary: #1C1D21;
+  --color-bg-chat: #0B0C0E;
+  --color-bg-sidebar: #101114;
+  --color-bg-input: #16171B;
+  --color-bg-user-msg: #2B5CD9;
+  --color-bg-assistant-msg: #141519;
+  --color-bg-tool: #17181C;
+  --color-bg-thinking: #141519;
+  --color-bg-card: #17181C;
+  --color-bg-nav-active: rgba(59, 111, 224, 0.08);
+
+  --color-text-primary: #EDEEF0;
+  --color-text-secondary: #A0A3AA;
+  --color-text-tertiary: #6E7178;
+  --color-text-inverse: #FFFFFF;
+  --color-text-muted: #85888F;
+
+  --color-border: #23252B;
+  --color-border-subtle: #1B1C21;
+  --color-border-focus: #3B6FE0;
+
+  --color-accent: #3B6FE0;
+  --color-accent-light: #5C8AF0;
+  --color-accent-hover: #4C7DEB;
+  --color-accent-glow: rgba(59, 111, 224, 0.16);
+
+  --color-gradient-start: #3B6FE0;
+  --color-gradient-mid: #4C7DEB;
+  --color-gradient-end: #5C8AF0;
+
+  /* Syntax highlighting — dark mode */
+  --color-syntax-keyword:  #A78BFA;
+  --color-syntax-string:   #34D399;
+  --color-syntax-number:   #FBBF24;
+  --color-syntax-function: #7BA6FF;
+  --color-syntax-comment:  #6B7280;
+  --color-syntax-type:     #22D3EE;
+  --color-syntax-builtin:  #818CF8;
+  --color-syntax-delete:   #F87171;
+  --color-syntax-meta:     #A8A29E;
+
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 4px 10px rgba(0, 0, 0, 0.4);
+  --shadow-lg: 0 8px 20px rgba(0, 0, 0, 0.5);
+  --shadow-glow: 0 0 16px rgba(59, 111, 224, 0.18);
+
+  /* Icon slash color — contrasts against accent-colored icon backgrounds */
+  --color-icon-slash: black;
+}
+
+/* ================================================================
+   Solid backgrounds
+   ================================================================ */
+
+/* Light mode */
+.gradient-bg {
+  background: #F5F6F8;
+}
+
+/* Dark mode */
+.dark .gradient-bg {
+  background: #131417;
+}
+
+/* ================================================================
+   User message bubble — subtle shadow
+   ================================================================ */
+.bg-bg-user-msg {
+  box-shadow: 0 2px 8px var(--color-accent-glow);
+}
+
+.dark .bg-bg-user-msg {
+  box-shadow: 0 2px 12px var(--color-accent-glow);
+}
+
+/* Accent button treatment */
+.bg-accent {
+  box-shadow: 0 1px 4px var(--color-accent-glow);
+}
+
+.dark .bg-accent {
+  box-shadow: 0 1px 6px var(--color-accent-glow);
+}
+
+/* ================================================================
+   Accessibility & performance
+   ================================================================ */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    transition-duration: 0s !important;
+    animation-duration: 0s !important;
+  }
+}
+
+/* ================================================================
+   Base styles
+   ================================================================ */
+* {
+  box-sizing: border-box;
+}
+
+html, body, #root {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'PingFang SC',
+    'Segoe UI', 'Roboto', 'Helvetica Neue',
+    Arial, sans-serif;
+  background-color: var(--color-bg-primary);
+  color: var(--color-text-primary);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  /* Disable text selection and context menu globally for native app feel */
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+/* Allow text selection only in input areas and message content */
+input, textarea, [contenteditable="true"],
+.message-content, .selectable {
+  user-select: text;
+  -webkit-user-select: text;
+}
+
+/* Scrollbar — use macOS-native overlay scrollbars (System Settings → 外观/General
+   → "Show scrollbars: When scrolling"). They float over content and reserve NO
+   layout space, so they never recreate the sidebar gap, yet stay visible while
+   scrolling in the chat / file-preview areas. We deliberately do NOT customize
+   ::-webkit-scrollbar globally — any width rule forces classic, space-reserving
+   scrollbars. The sidebar opts out entirely via .no-scrollbar below. */
+
+/* Fully hide scrollbar — no track, no reserved gutter. Used by the conversation
+   list so card margins aren't offset by the 6px scrollbar. Still scrollable. */
+.no-scrollbar::-webkit-scrollbar {
+  width: 0;
+  height: 0;
+  display: none;
+}
+.no-scrollbar {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+/* Accent text (formerly gradient-text) */
+.gradient-text {
+  color: var(--color-accent);
+}
+
+/* Pulse animation for streaming */
+@keyframes pulse-soft {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}
+.animate-pulse-soft {
+  animation: pulse-soft 1.5s ease-in-out infinite;
+}
+
+/* Typing indicator: 3 dots, light "moves" across via staggered animation-delay */
+@keyframes typing-dot {
+  0%, 60%, 100% {
+    opacity: 0.25;
+    transform: translateY(0);
+  }
+  30% {
+    opacity: 1;
+    transform: translateY(-3px);
+  }
+}
+.animate-typing-dot {
+  animation: typing-dot 1.2s ease-in-out infinite;
+}
+
+/* Indeterminate progress bar */
+@keyframes progress-indeterminate {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(400%); }
+}
+.animate-progress {
+  animation: progress-indeterminate 1.5s ease-in-out infinite;
+}
+
+/* Scale-in for cards */
+@keyframes scale-in {
+  from { opacity: 0; transform: scale(0.96); }
+  to { opacity: 1; transform: scale(1); }
+}
+.animate-scale-in {
+  animation: scale-in 0.2s ease-out;
+}
+
+/* Slow spin for activity indicator asterisk */
+@keyframes spin-slow {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+.animate-spin-slow {
+  animation: spin-slow 2s linear infinite;
+  display: inline-block;
+}
+
+/* Smooth transitions for all interactive elements */
+.transition-smooth {
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Fade in animation for modals */
+@keyframes fade-in {
+  from { opacity: 0; transform: translateY(-8px) scale(0.98); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+.animate-fade-in {
+  animation: fade-in 0.15s ease-out;
+}
+
+/* Title update animation (AI-generated title) */
+@keyframes title-update {
+  0% { opacity: 0.3; transform: translateY(4px); }
+  50% { opacity: 0.8; }
+  100% { opacity: 1; transform: translateY(0); }
+}
+.animate-title-update {
+  animation: title-update 0.5s ease-out;
+}
+
+/* ================================================================
+   Prose / Typography overrides — map to theme CSS vars
+   ================================================================ */
+.prose {
+  --tw-prose-body: var(--color-text-primary);
+  --tw-prose-headings: var(--color-text-primary);
+  --tw-prose-lead: var(--color-text-muted);
+  --tw-prose-links: var(--color-accent);
+  --tw-prose-bold: var(--color-text-primary);
+  --tw-prose-counters: var(--color-text-tertiary);
+  --tw-prose-bullets: var(--color-text-tertiary);
+  --tw-prose-hr: var(--color-border);
+  --tw-prose-quotes: var(--color-text-muted);
+  --tw-prose-quote-borders: var(--color-border);
+  --tw-prose-captions: var(--color-text-muted);
+  --tw-prose-code: var(--color-syntax-keyword);
+  --tw-prose-pre-code: var(--color-text-primary);
+  --tw-prose-pre-bg: var(--color-bg-secondary);
+  --tw-prose-th-borders: var(--color-border);
+  --tw-prose-td-borders: var(--color-border-subtle);
+}
+
+/* Ensure prose does not add extra margins that clash with our layout */
+.prose :where(p):not(:where([class~="not-prose"],[class~="not-prose"] *)) {
+  margin-top: 0.5em;
+  margin-bottom: 0.5em;
+}
+
+.prose :where(ul, ol):not(:where([class~="not-prose"],[class~="not-prose"] *)) {
+  margin-top: 0.5em;
+  margin-bottom: 0.5em;
+}
+
+.prose :where(li):not(:where([class~="not-prose"],[class~="not-prose"] *)) {
+  margin-top: 0.15em;
+  margin-bottom: 0.15em;
+}
+
+.prose :where(pre):not(:where([class~="not-prose"],[class~="not-prose"] *)) {
+  margin-top: 0.75em;
+  margin-bottom: 0.75em;
+}
+
+.prose :where(blockquote):not(:where([class~="not-prose"],[class~="not-prose"] *)) {
+  border-left-color: var(--color-border);
+  color: var(--color-text-muted);
+  font-style: normal;
+}
+
+.prose :where(code):not(:where(pre *, [class~="not-prose"],[class~="not-prose"] *)) {
+  font-weight: 500;
+}
+
+/* ================================================================
+   highlight.js — theme-aware syntax highlighting (uses --syntax-* vars)
+   ================================================================ */
+.hljs {
+  background: var(--color-bg-secondary) !important;
+  color: var(--color-text-primary) !important;
+}
+.hljs-comment,
+.hljs-quote {
+  color: var(--color-syntax-comment);
+  font-style: italic;
+}
+.hljs-keyword,
+.hljs-selector-tag {
+  color: var(--color-syntax-keyword);
+  font-weight: 600;
+}
+.hljs-type {
+  color: var(--color-syntax-type);
+  font-weight: 600;
+}
+.hljs-string,
+.hljs-attr,
+.hljs-addition {
+  color: var(--color-syntax-string);
+}
+.hljs-number,
+.hljs-literal,
+.hljs-variable,
+.hljs-template-variable {
+  color: var(--color-syntax-number);
+}
+.hljs-title,
+.hljs-section,
+.hljs-name {
+  color: var(--color-syntax-function);
+}
+.hljs-built_in,
+.hljs-builtin-name {
+  color: var(--color-syntax-builtin);
+}
+.hljs-function > .hljs-title {
+  color: var(--color-syntax-function);
+}
+.hljs-deletion {
+  color: var(--color-syntax-delete);
+}
+.hljs-meta {
+  color: var(--color-syntax-meta);
+}
+.hljs-emphasis {
+  font-style: italic;
+}
+.hljs-strong {
+  font-weight: 700;
+}
+
+/* CodeMirror — ensure full height and theme integration */
+.cm-editor {
+  height: 100%;
+}
+.cm-editor .cm-scroller {
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+  line-height: 1.7;
+}
+
+/* Resize handle for panels */
+.resize-handle {
+  cursor: col-resize;
+  user-select: none;
+  touch-action: none;
+}
+
+/* Horizontal resize handle for vertical splits */
+.resize-handle-h {
+  cursor: row-resize;
+  user-select: none;
+  touch-action: none;
+}
+
+/* ================================================================
+   Tiptap editor — chat input styling
+   ================================================================ */
+
+/* Remove default paragraph margins inside the editor */
+.tiptap p {
+  margin: 0;
+  padding: 0;
+}
+
+/* Placeholder text (via @tiptap/extension-placeholder) */
+.tiptap p.is-editor-empty:first-child::before {
+  content: attr(data-placeholder);
+  float: left;
+  color: var(--color-text-tertiary);
+  pointer-events: none;
+  height: 0;
+}
+
+/* Auto-size: min/max height for the editor area */
+.tiptap {
+  min-height: 24px;
+  max-height: 50vh;
+  overflow-y: auto;
+  outline: none;
+  line-height: 1.5;
+}
