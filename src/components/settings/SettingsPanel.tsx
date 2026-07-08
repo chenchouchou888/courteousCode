@@ -223,9 +223,8 @@ function SettingsFooter() {
         {/* Left: version */}
         <span className="text-xs text-text-tertiary flex items-center gap-1.5">
           <svg width="11" height="11" viewBox="0 0 171 171" fill="none" className="flex-shrink-0 opacity-60">
-            <path d="M66.79 58.73L40.33 85.19L66.79 111.66L57.53 120.92L21.8 85.19L57.53 49.47Z" fill="currentColor" />
-            <path d="M111.5 49.47L147.22 85.19L111.5 120.92L102.24 111.66L128.7 85.19L102.24 58.73Z" fill="currentColor" />
-            <path d="M90.01 39.92L102.01 39.92L79.24 129.92L67.24 129.92L79.24 81.92Z" className="fill-accent" />
+            <rect width="171" height="171" rx="38.5" fill="currentColor" />
+            <path d="M85.5 48C63.5 48 48 63.5 48 85.5S63.5 123 85.5 123c13 0 24.5-5 33-13l-12-14c-5.5 5-12.8 8-21 8-16 0-28-12-28-28s12-28 28-28c8.2 0 15.5 3 21 8l12-14c-8.5-8-20-13-33-13z" fill="var(--color-bg-secondary, #131417)" />
           </svg>
           {APP_NAME} {appVersion ? `v${appVersion}` : '...'}
         </span>

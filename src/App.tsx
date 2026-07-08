@@ -13,7 +13,7 @@ import { useProviderStore } from './stores/providerStore';
 import { useFileStore } from './stores/fileStore';
 import { useChatStore } from './stores/chatStore';
 import { useSessionStore } from './stores/sessionStore';
-import { APP_NAME, IS_ALPHA } from './lib/edition';
+import { APP_NAME } from './lib/edition';
 import { useAgentStore } from './stores/agentStore';
 import { bridge, onFileChange } from './lib/tauri-bridge';
 import { parseSessionMessages } from './lib/session-loader';
@@ -22,59 +22,6 @@ import { useAutoUpdateCheck } from './hooks/useAutoUpdateCheck';
 import { useT } from './lib/i18n';
 import { openUrl } from '@tauri-apps/plugin-opener';
 import './App.css';
-
-/** Render the app icon SVG as base64 PNG for macOS Dock.
- *  Stable: black bg, white brackets, accent-colored slash.
- *  Alpha: rainbow gradient bg, white brackets and slash. */
-function renderIconPng(accentColor: string): Promise<string> {
-  return new Promise((resolve, reject) => {
-    const size = 512;
-    const svg = IS_ALPHA
-      ? `<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="-20.75 -20.75 212.5 212.5">
-<defs><linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
-<stop offset="0%" stop-color="#7B2FF7"/><stop offset="35%" stop-color="#4E80F7"/>
-<stop offset="65%" stop-color="#38BDF8"/><stop offset="100%" stop-color="#34D399"/>
-</linearGradient></defs>
-<rect width="171" height="171" rx="38.5" fill="url(#bg)"/>
-<path d="M66.7913 58.7327L40.3284 85.1946L66.7913 111.657L57.5295 120.919L21.8049 85.1946L57.5295 49.471L66.7913 58.7327Z" fill="white"/>
-<path d="M111.497 49.471L147.222 85.1946L111.497 120.919L102.236 111.657L128.698 85.1946L102.236 58.7327L111.497 49.471Z" fill="white"/>
-<path d="M90.0113 39.9192L102.011 39.9192L79.2356 129.919L67.2356 129.919L79.2356 81.9192L90.0113 39.9192Z" fill="white"/>
-</svg>`
-      : `<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="-20.75 -20.75 212.5 212.5">
-<rect width="171" height="171" rx="38.5" fill="#000000"/>
-<path d="M66.7913 58.7327L40.3284 85.1946L66.7913 111.657L57.5295 120.919L21.8049 85.1946L57.5295 49.471L66.7913 58.7327Z" fill="white"/>
-<path d="M111.497 49.471L147.222 85.1946L111.497 120.919L102.236 111.657L128.698 85.1946L102.236 58.7327L111.497 49.471Z" fill="white"/>
-<path d="M90.0113 39.9192L102.011 39.9192L79.2356 129.919L67.2356 129.919L79.2356 81.9192L90.0113 39.9192Z" fill="${accentColor}"/>
-</svg>`;
-    const blob = new Blob([svg], { type: 'image/svg+xml' });
-    const url = URL.createObjectURL(blob);
-    const img = new Image();
-    img.onload = () => {
-      const canvas = document.createElement('canvas');
-      canvas.width = size;
-      canvas.height = size;
-      const ctx = canvas.getContext('2d')!;
-      ctx.drawImage(img, 0, 0, size, size);
-      URL.revokeObjectURL(url);
-      const dataUrl = canvas.toDataURL('image/png');
-      resolve(dataUrl.split(',')[1]);
-    };
-    img.onerror = () => {
-      URL.revokeObjectURL(url);
-      reject(new Error('Failed to render icon'));
-    };
-    img.src = url;
-  });
-}
-
-async function updateDockIcon() {
-  try {
-    const pngBase64 = await renderIconPng('#3B6FE0');
-    await bridge.setDockIcon(pngBase64);
-  } catch {
-    // Silently ignore on non-macOS or errors
-  }
-}
 
 function App() {
   const theme = useSettingsStore((s) => s.theme);
@@ -533,10 +480,6 @@ function App() {
     }
   }, [theme]);
 
-  // Update macOS dock icon (accent color is fixed — no color theme to react to)
-  useEffect(() => {
-    updateDockIcon();
-  }, []);
 
   // Apply font size to document root
   useEffect(() => {
