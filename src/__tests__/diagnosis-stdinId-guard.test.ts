@@ -81,9 +81,9 @@ describe('P0 #1: process_exit stdinId ownership guard', () => {
     // ownerTabId is undefined, so tabId = ownerTabId || activeTabId → wrong tab
     const routingSection = source.slice(
       source.indexOf('const handleStreamMessage = useCallback'),
-      source.indexOf("case 'courteouscode_permission_request'") > 0
-        ? source.indexOf("if (msg.type === 'courteouscode_permission_request')")
-        : source.indexOf("case 'courteouscode_permission_request'"),
+      source.indexOf("case 'blackbox_permission_request'") > 0
+        ? source.indexOf("if (msg.type === 'blackbox_permission_request')")
+        : source.indexOf("case 'blackbox_permission_request'"),
     );
     // The fallback: tabId = ownerTabId || activeTabId
     expect(routingSection).toContain('ownerTabId || activeTabId');

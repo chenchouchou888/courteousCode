@@ -28,7 +28,7 @@
       "name": "T04-新建session有cwd到编辑器",
       "timeout": 15000,
       "steps": [
-        {"cmd": "new-session", "flags": {"cwd": "/tmp/courteouscode-test"}},
+        {"cmd": "new-session", "flags": {"cwd": "/tmp/blackbox-test"}},
         {"cmd": "check-editor", "assert": {"hasEditor": true}},
         {"cmd": "status"}
       ]
@@ -38,9 +38,9 @@
       "timeout": 60000,
       "steps": [
         {"cmd": "get-all-sessions"},
-        {"cmd": "new-session", "flags": {"cwd": "/tmp/courteouscode-test"}},
+        {"cmd": "new-session", "flags": {"cwd": "/tmp/blackbox-test"}},
         {"cmd": "get-active-session"},
-        {"cmd": "new-session", "flags": {"cwd": "/tmp/courteouscode-test"}},
+        {"cmd": "new-session", "flags": {"cwd": "/tmp/blackbox-test"}},
         {"cmd": "delay", "args": ["2000"]},
         {"cmd": "get-active-session"}
       ]
@@ -57,7 +57,7 @@
       "name": "T07-新session后消息为空",
       "timeout": 15000,
       "steps": [
-        {"cmd": "new-session", "flags": {"cwd": "/tmp/courteouscode-test"}},
+        {"cmd": "new-session", "flags": {"cwd": "/tmp/blackbox-test"}},
         {"cmd": "check-editor", "assert": {"hasEditor": true}},
         {"cmd": "get-messages", "assert": {"total_lte": 0}}
       ]

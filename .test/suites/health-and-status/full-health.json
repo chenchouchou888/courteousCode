@@ -93,7 +93,7 @@
         {
           "cmd": "new-session",
           "flags": {
-            "cwd": "/tmp/courteouscode-test"
+            "cwd": "/tmp/blackbox-test"
           }
         },
         {

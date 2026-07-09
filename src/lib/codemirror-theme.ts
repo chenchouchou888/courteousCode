@@ -7,7 +7,7 @@ import { tags } from '@lezer/highlight';
  * so it automatically follows the app's theme and color scheme.
  * Replaces vscodeDark/vscodeLight — no isDark branching needed.
  */
-export const courteouscodeTheme = EditorView.theme({
+export const blackboxTheme = EditorView.theme({
   '&': {
     backgroundColor: 'var(--color-bg-primary)',
     color: 'var(--color-text-primary)',
@@ -71,7 +71,7 @@ export const courteouscodeTheme = EditorView.theme({
   },
 });
 
-export const courteouscodeHighlight = syntaxHighlighting(HighlightStyle.define([
+export const blackboxHighlight = syntaxHighlighting(HighlightStyle.define([
   { tag: tags.keyword, color: 'var(--color-syntax-keyword)' },
   { tag: tags.controlKeyword, color: 'var(--color-syntax-keyword)', fontWeight: '600' },
   { tag: tags.string, color: 'var(--color-syntax-string)' },

@@ -1,5 +1,5 @@
 /**
- * Singleton StreamController wired to COURTEOUSCODE's live stores.
+ * Singleton StreamController wired to BLACKBOX's live stores.
  *
  * The controller is the single owner of streaming state (rAF buffer, orphan
  * queue, completion guard). This module binds it to sessionStore (for

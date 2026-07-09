@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
-// run-tests.mjs — Mechanical test runner for COURTEOUSCODE GUI
-// Reads test definitions from JSON, executes them serially via courteouscode-cli.mjs,
+// run-tests.mjs — Mechanical test runner for BLACKBOX GUI
+// Reads test definitions from JSON, executes them serially via blackbox-cli.mjs,
 // records everything, outputs structured report.
 // Zero external dependencies — Node.js built-in modules only.
 
@@ -13,18 +13,18 @@ import { fileURLToPath } from 'node:url';
 // ─── Constants ───────────────────────────────────────────────────────────────
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
-const CLI_PATH = resolve(__dirname, 'courteouscode-cli.mjs');
+const CLI_PATH = resolve(__dirname, 'blackbox-cli.mjs');
 const DEFAULT_STEP_TIMEOUT = 30_000;  // 30s per step
 const DEFAULT_TEST_TIMEOUT = 120_000; // 2 min per test
 const MAX_CONSECUTIVE_FAILURES = 3;   // trigger restart after this many
-const REPORT_DIR = process.env.COURTEOUSCODE_REPORT_DIR || '/tmp';
+const REPORT_DIR = process.env.BLACKBOX_REPORT_DIR || '/tmp';
 const DETAIL_LEVELS = { minimal: 0, standard: 1, full: 2 };
 
 // ─── CLI Bridge ──────────────────────────────────────────────────────────────
 
 /**
  * Execute a single CLI command. Returns the parsed JSON output.
- * This is the ONLY interface to COURTEOUSCODE — pure process spawn, no socket.
+ * This is the ONLY interface to BLACKBOX — pure process spawn, no socket.
  */
 function cli(cmd, args = [], flags = {}, timeout = DEFAULT_STEP_TIMEOUT) {
   const argv = [CLI_PATH, cmd, ...args];
@@ -524,10 +524,10 @@ function main() {
 
   config._testFile = config.testFile;
 
-  // Pre-flight: check if COURTEOUSCODE is running
+  // Pre-flight: check if BLACKBOX is running
   const pingResult = cli('ping');
   if (!pingResult.ok) {
-    process.stderr.write(`COURTEOUSCODE is not running. Start with: pnpm tauri dev\n`);
+    process.stderr.write(`BLACKBOX is not running. Start with: pnpm tauri dev\n`);
     process.stderr.write(`Ping result: ${JSON.stringify(pingResult)}\n`);
     process.exit(1);
   }
@@ -609,7 +609,7 @@ function main() {
 
   // Determine report path
   const timestamp = startTime.toISOString().replace(/[:.]/g, '-').slice(0, 19);
-  const reportPath = config.reportPath || resolve(REPORT_DIR, `courteouscode-test-report-${timestamp}.json`);
+  const reportPath = config.reportPath || resolve(REPORT_DIR, `blackbox-test-report-${timestamp}.json`);
 
   let reportWritten = false;
   let reportWriteError = null;

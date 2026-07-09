@@ -16,7 +16,7 @@ export function Sidebar() {
       <div
         className="flex items-center justify-between mb-4 mt-1 pl-5 pr-3.5 cursor-default">
         <span className="text-[15px] font-bold tracking-tight text-text-primary pointer-events-none">
-          courteous<span style={{color: 'var(--color-accent)'}}>Code</span>
+          Black <span style={{color: 'var(--color-accent)'}}>Box</span>
         </span>
         <button onClick={toggleSidebar}
           className="p-1 rounded-md hover:bg-bg-tertiary text-text-tertiary

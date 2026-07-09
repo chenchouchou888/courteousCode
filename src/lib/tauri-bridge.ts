@@ -412,28 +412,28 @@ export const bridge = {
   openTerminalLogin: () =>
     invoke<void>('open_terminal_login'),
 
-  // Session custom names (persisted to ~/.claude/courteouscode_session_names.json)
+  // Session custom names (persisted to ~/.claude/blackbox_session_names.json)
   loadCustomPreviews: () =>
     invoke<Record<string, string>>('load_custom_previews'),
 
   saveCustomPreviews: (data: Record<string, string>) =>
     invoke<void>('save_custom_previews', { data }),
 
-  // Pinned sessions (persisted to ~/.courteouscode/pinned.json)
+  // Pinned sessions (persisted to ~/.blackbox/pinned.json)
   loadPinnedSessions: () =>
     invoke<string[]>('load_pinned_sessions').catch(() => []),
 
   savePinnedSessions: (data: string[]) =>
     invoke<void>('save_pinned_sessions', { data }).catch(() => {}),
 
-  // Archived sessions (persisted to ~/.courteouscode/archived.json)
+  // Archived sessions (persisted to ~/.blackbox/archived.json)
   loadArchivedSessions: () =>
     invoke<string[]>('load_archived_sessions').catch(() => []),
 
   saveArchivedSessions: (data: string[]) =>
     invoke<void>('save_archived_sessions', { data }).catch(() => {}),
 
-  // Session groups (persisted to ~/.courteouscode/groups.json)
+  // Session groups (persisted to ~/.blackbox/groups.json)
   loadSessionGroups: () =>
     invoke<unknown[]>('load_session_groups').catch(() => []),
 
@@ -515,7 +515,7 @@ export interface PermissionRequest {
 // --- Event Listeners ---
 
 /** @deprecated This listener has no corresponding backend emit — permission requests
- *  arrive through the main stream channel as `courteouscode_permission_request` messages.
+ *  arrive through the main stream channel as `blackbox_permission_request` messages.
  *  Kept for reference; will be removed in a future cleanup pass.
  *  @param stdinId - Desk-generated process key (NOT the CLI session UUID) */
 export function onPermissionRequest(

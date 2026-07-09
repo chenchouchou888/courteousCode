@@ -8,7 +8,7 @@
         {
           "cmd": "new-session",
           "flags": {
-            "cwd": "/tmp/courteouscode-test"
+            "cwd": "/tmp/blackbox-test"
           }
         },
         {
@@ -92,7 +92,7 @@
         {
           "cmd": "new-session",
           "flags": {
-            "cwd": "/tmp/courteouscode-test"
+            "cwd": "/tmp/blackbox-test"
           }
         },
         {
@@ -112,7 +112,7 @@
         {
           "cmd": "type",
           "args": [
-            "请列出 /tmp/courteouscode-test 目录下的所有文件"
+            "请列出 /tmp/blackbox-test 目录下的所有文件"
           ]
         },
         {
@@ -163,7 +163,7 @@
         {
           "cmd": "new-session",
           "flags": {
-            "cwd": "/tmp/courteouscode-test"
+            "cwd": "/tmp/blackbox-test"
           }
         },
         {

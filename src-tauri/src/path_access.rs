@@ -7,7 +7,7 @@
 //! a two-tier allowlist:
 //!
 //! 1. **Fixed roots** — paths that are always allowed (project cwd[s],
-//!    `~/.claude.json`, `~/.claude/`, `~/.courteouscode/`, system temp dir).
+//!    `~/.claude.json`, `~/.claude/`, `~/.blackbox/`, system temp dir).
 //! 2. **Session grants** — paths that the user has explicitly authorized at
 //!    runtime (via the native file dialog, OS drag-drop, or a Markdown
 //!    "authorize" button). Grants are scoped per stdin/tab id and cleared
@@ -48,10 +48,10 @@ impl PathAccessManager {
         if let Some(home) = dirs::home_dir() {
             push_canonical(&mut roots, home.join(".claude.json"));
             push_canonical(&mut roots, home.join(".claude"));
-            push_canonical(&mut roots, home.join(".courteouscode"));
+            push_canonical(&mut roots, home.join(".blackbox"));
             push_canonical(
                 &mut roots,
-                home.join("Library/Application Support/COURTEOUSCODE"),
+                home.join("Library/Application Support/BLACKBOX"),
             );
         }
         // System temp dir — save_temp_file writes here when cwd is missing.

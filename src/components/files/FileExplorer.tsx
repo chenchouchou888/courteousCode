@@ -384,7 +384,7 @@ function TreeNode({
                 } else if (!result.droppedInTree) {
                   // Drop outside file tree → insert file chip in chat
                   window.dispatchEvent(
-                    new CustomEvent('courteouscode:tree-file-inline', { detail: result.sourcePath }),
+                    new CustomEvent('blackbox:tree-file-inline', { detail: result.sourcePath }),
                   );
                 }
               }

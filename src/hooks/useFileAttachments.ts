@@ -333,7 +333,7 @@ export function useFileAttachments() {
 
             // Non-images → inline file chips
             for (const p of otherPaths) {
-              window.dispatchEvent(new CustomEvent('courteouscode:tree-file-inline', { detail: p }));
+              window.dispatchEvent(new CustomEvent('blackbox:tree-file-inline', { detail: p }));
             }
           }
         })();

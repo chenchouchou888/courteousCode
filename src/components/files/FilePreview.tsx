@@ -27,7 +27,7 @@ import { useFileStore } from '../../stores/fileStore';
 import { bridge } from '../../lib/tauri-bridge';
 import { MarkdownRenderer } from '../shared/MarkdownRenderer';
 import { FileIcon } from '../shared/FileIcon';
-import { courteouscodeTheme, courteouscodeHighlight } from '../../lib/codemirror-theme';
+import { blackboxTheme, blackboxHighlight } from '../../lib/codemirror-theme';
 import { useT } from '../../lib/i18n';
 
 /* ================================================================
@@ -368,8 +368,8 @@ export function FilePreview() {
           /* Edit mode: CodeMirror 6 editor */
           <CodeMirror
             value={editContent ?? fileContent ?? ''}
-            extensions={[...(Array.isArray(langExtension) ? langExtension : [langExtension]), EditorView.lineWrapping, courteouscodeHighlight]}
-            theme={courteouscodeTheme}
+            extensions={[...(Array.isArray(langExtension) ? langExtension : [langExtension]), EditorView.lineWrapping, blackboxHighlight]}
+            theme={blackboxTheme}
             onChange={(value) => setEditContent(value)}
             height="100%"
             style={{ height: '100%', fontSize: '13px' }}
@@ -442,8 +442,8 @@ export function FilePreview() {
           /* Source view: read-only CodeMirror */
           <CodeMirror
             value={fileContent}
-            extensions={[...(Array.isArray(langExtension) ? langExtension : [langExtension]), EditorView.lineWrapping, courteouscodeHighlight]}
-            theme={courteouscodeTheme}
+            extensions={[...(Array.isArray(langExtension) ? langExtension : [langExtension]), EditorView.lineWrapping, blackboxHighlight]}
+            theme={blackboxTheme}
             editable={false}
             readOnly={true}
             height="100%"

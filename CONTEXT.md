@@ -1,6 +1,6 @@
-# COURTEOUSCODE
+# BLACKBOX
 
-COURTEOUSCODE 是 Claude Code（`claude` CLI）的桌面图形客户端。本术语表记录这个项目特有的领域概念，统一叫法，避免同物多名 / 同名多物。所有 skill 开工前先读这里。
+BLACKBOX 是 Claude Code（`claude` CLI）的桌面图形客户端。本术语表记录这个项目特有的领域概念，统一叫法，避免同物多名 / 同名多物。所有 skill 开工前先读这里。
 
 ## Language
 

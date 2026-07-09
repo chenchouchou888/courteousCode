@@ -137,13 +137,13 @@ export function ConversationList() {
   // Pinned & archived (Phase 3)
   const [pinnedSessions, setPinnedSessions] = useState<Set<string>>(() => {
     try {
-      const data = localStorage.getItem('courteouscode_pinned_sessions');
+      const data = localStorage.getItem('blackbox_pinned_sessions');
       return new Set(data ? JSON.parse(data) : []);
     } catch { return new Set(); }
   });
   const [archivedSessions, setArchivedSessions] = useState<Set<string>>(() => {
     try {
-      const data = localStorage.getItem('courteouscode_archived_sessions');
+      const data = localStorage.getItem('blackbox_archived_sessions');
       return new Set(data ? JSON.parse(data) : []);
     } catch { return new Set(); }
   });
@@ -179,7 +179,7 @@ export function ConversationList() {
   // Persist pinned/archived
   const persistPinned = useCallback((next: Set<string>) => {
     setPinnedSessions(next);
-    localStorage.setItem('courteouscode_pinned_sessions', JSON.stringify([...next]));
+    localStorage.setItem('blackbox_pinned_sessions', JSON.stringify([...next]));
     bridge.savePinnedSessions([...next]).catch(() => {});
   }, []);
 

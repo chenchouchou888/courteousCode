@@ -1,8 +1,8 @@
-# COURTEOUSCODE Test Harness
+# BLACKBOX Test Harness
 
 `.test/` holds the GUI E2E suites and the scripts used to run and analyze them.
 
-The harness drives a debug COURTEOUSCODE app through `scripts/courteouscode-cli.mjs`.
+The harness drives a debug BLACKBOX app through `scripts/blackbox-cli.mjs`.
 It is not available in production builds.
 
 ## Quick Start
@@ -16,7 +16,7 @@ It is not available in production builds.
 2. Confirm the socket is reachable:
 
    ```bash
-   node scripts/courteouscode-cli.mjs ping
+   node scripts/blackbox-cli.mjs ping
    ```
 
 3. Run the non-LLM smoke phase first:
@@ -64,7 +64,7 @@ Without an argument, the analyzer scans the latest run directory.
 Suites live in `.test/suites/<area>/<name>.json`.
 
 Use `.test/suites/examples/health-smoke.json` as the smallest copyable template.
-Prefer `new-session --cwd /tmp/courteouscode-test` for tests that need the editor.
+Prefer `new-session --cwd /tmp/blackbox-test` for tests that need the editor.
 `new-session` without `--cwd` intentionally lands on the welcome page and has no editor.
 
 ## Creating A New Suite

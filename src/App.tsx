@@ -65,10 +65,10 @@ function App() {
     import('tauri-plugin-mcp').then(({ setupPluginListeners }) => {
       setupPluginListeners();
     }).catch((error) => {
-      console.warn('[COURTEOUSCODE] Failed to init MCP plugin listeners:', error);
+      console.warn('[BLACKBOX] Failed to init MCP plugin listeners:', error);
     });
 
-    (window as any).__courteouscode_test = {
+    (window as any).__blackbox_test = {
       getMessages(optsOrTabId?: string | { tabId?: string; last?: number; summary?: boolean }) {
         const opts = typeof optsOrTabId === 'string' ? { tabId: optsOrTabId } : (optsOrTabId || {});
         const id = opts.tabId || useSessionStore.getState().selectedSessionId;
@@ -98,7 +98,7 @@ function App() {
         return { messages, total };
       },
       getLastMessage(tabId?: string) {
-        const { messages } = (window as any).__courteouscode_test.getMessages({ tabId, last: 1 });
+        const { messages } = (window as any).__blackbox_test.getMessages({ tabId, last: 1 });
         return messages[0] || null;
       },
       getActiveSessionId() {
@@ -142,20 +142,20 @@ function App() {
           active,
           phase: phase || null,
           sessionStatus: tab?.sessionStatus || null,
-          pendingPermission: !!(window as any).__courteouscode_respond_permission,
+          pendingPermission: !!(window as any).__blackbox_respond_permission,
           settingsOpen: useSettingsStore.getState().settingsOpen,
           messageCount: tab?.messages?.length || 0,
         };
       },
       type(text: string) {
-        const editor = (window as any).__courteouscode_editor;
+        const editor = (window as any).__blackbox_editor;
         if (!editor) return { error: 'Editor not available (no active session)' };
         editor.commands.clearContent();
         editor.commands.insertContent(text);
         return { typed: text };
       },
       send() {
-        const fn = (window as any).__courteouscode_send;
+        const fn = (window as any).__blackbox_send;
         if (!fn) return { error: 'Send handler not available' };
         fn();
         return { sent: true };
@@ -286,13 +286,13 @@ function App() {
         return { error: `Tab ${tabId} not found` };
       },
       allowPermission() {
-        const fn = (window as any).__courteouscode_respond_permission;
+        const fn = (window as any).__blackbox_respond_permission;
         if (!fn) return { error: 'No pending permission request' };
         fn(true);
         return { allowed: true };
       },
       denyPermission() {
-        const fn = (window as any).__courteouscode_respond_permission;
+        const fn = (window as any).__blackbox_respond_permission;
         if (!fn) return { error: 'No pending permission request' };
         fn(false);
         return { denied: true };
@@ -317,7 +317,7 @@ function App() {
     };
 
     return () => {
-      delete (window as any).__courteouscode_test;
+      delete (window as any).__blackbox_test;
     };
   }, []);
 
@@ -379,7 +379,7 @@ function App() {
                 }
               }
             } catch (err) {
-              console.warn('[COURTEOUSCODE:close] stream flush failed', err);
+              console.warn('[BLACKBOX:close] stream flush failed', err);
             }
             const { exit } = await import('@tauri-apps/plugin-process');
             await exit(0);
@@ -400,7 +400,7 @@ function App() {
       if (!activeIds.length) return;
       const orphaned = activeIds.filter((id) => !hasRecoverableFrontendSession(id));
       for (const id of orphaned) {
-        console.log('[COURTEOUSCODE:cleanup] killing orphaned process:', id);
+        console.log('[BLACKBOX:cleanup] killing orphaned process:', id);
         const ownerTabId = useSessionStore.getState().getTabForStdin(id);
         bridge.killSession(id).catch(() => {});
         useSessionStore.getState().unregisterStdinTab(id);
@@ -420,7 +420,7 @@ function App() {
     const isMac = navigator.userAgent.includes('Mac');
     if (!isMac) return;
     // Skip if user previously dismissed the dialog
-    if (localStorage.getItem('courteouscode-perm-dismissed')) return;
+    if (localStorage.getItem('blackbox-perm-dismissed')) return;
     bridge.checkFileAccess('/Users').then((ok) => {
       if (!ok) setShowPermDialog(true);
     }).catch(() => {});
@@ -653,7 +653,7 @@ function App() {
             <div className="px-6 py-4 flex items-center justify-end gap-2">
               <button
                 onClick={() => {
-                  localStorage.setItem('courteouscode-perm-dismissed', '1');
+                  localStorage.setItem('blackbox-perm-dismissed', '1');
                   setShowPermDialog(false);
                 }}
                 className="px-4 py-2 rounded-lg text-xs font-medium
@@ -664,7 +664,7 @@ function App() {
               </button>
               <button
                 onClick={() => {
-                  localStorage.setItem('courteouscode-perm-dismissed', '1');
+                  localStorage.setItem('blackbox-perm-dismissed', '1');
                   openUrl('x-apple.systempreferences:com.apple.preference.security?Privacy_AllFiles');
                   setShowPermDialog(false);
                 }}

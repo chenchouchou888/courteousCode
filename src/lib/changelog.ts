@@ -386,7 +386,7 @@ export const CHANGELOG: ChangelogEntry[] = [
             '从 Finder 拖文件到输入框会同时插入文件 chip 和原始文本路径 — 新增 drop 拦截',
             'Rewind 后事件偶尔路由到错误 tab — killProcess 现在会清理 stdin → tab 映射',
             '流式缓冲区对中文字符使用字节切片导致 panic，进而杀死整个 stdout 读取任务 — 改为安全的字符边界检查',
-            '"注入 PATH" 之前写的是错误的 marker 且反复点击会累积多个块（#79）— 现在会拒绝无效 CLI 候选（broken symlink / 空目录 / 非可执行文件），marker 正名为 `# Added by COURTEOUSCODE`，每次注入前先剥离自己的历史块',
+            '"注入 PATH" 之前写的是错误的 marker 且反复点击会累积多个块（#79）— 现在会拒绝无效 CLI 候选（broken symlink / 空目录 / 非可执行文件），marker 正名为 `# Added by BLACKBOX`，每次注入前先剥离自己的历史块',
           ],
           en: [
             'Stream output occasionally stalled or dropped trailing characters — added orphan buffer queue + 3-second stall watchdog; flushes are no longer silently discarded when routing is unresolved',
@@ -399,7 +399,7 @@ export const CHANGELOG: ChangelogEntry[] = [
             'Finder file drag inserted both a file chip and a raw text path — added drop interception',
             'Events occasionally routed to the wrong tab after Rewind — killProcess now cleans up the stdin → tab mapping',
             'Stream buffer byte-slicing panicked on Chinese characters and killed the entire stdout reader task — now uses safe char-boundary checks',
-            '"Inject PATH" wrote a wrong marker and accumulated duplicate blocks on repeat clicks (#79) — now rejects invalid CLI candidates (broken symlinks, empty dirs, non-executable files), marker renamed to `# Added by COURTEOUSCODE`, and each inject strips its own historical blocks first',
+            '"Inject PATH" wrote a wrong marker and accumulated duplicate blocks on repeat clicks (#79) — now rejects invalid CLI candidates (broken symlinks, empty dirs, non-executable files), marker renamed to `# Added by BLACKBOX`, and each inject strips its own historical blocks first',
           ],
         },
       },
@@ -1327,7 +1327,7 @@ export const CHANGELOG: ChangelogEntry[] = [
         '修复中文输入法偶发丢失焦点',
         '新增/导入 API 后自动生效，无需手动选择',
         'VPN 关闭后 API 自动切换直连，无需手动操作',
-        '双版本体系 — 一套代码支持 TCAlpha 内测版和 COURTEOUSCODE 稳定版',
+        '双版本体系 — 一套代码支持 TCAlpha 内测版和 BLACKBOX 稳定版',
       ],
       en: [
         'Fix long conversation freeze — Streaming no longer stalls after 5+ turns, major performance improvement',
@@ -1337,7 +1337,7 @@ export const CHANGELOG: ChangelogEntry[] = [
         'Fix CJK IME occasionally losing focus',
         'New/imported API providers auto-activate',
         'Auto-switch to direct connection when VPN is off',
-        'Dual-edition system — One codebase supports TCAlpha and COURTEOUSCODE',
+        'Dual-edition system — One codebase supports TCAlpha and BLACKBOX',
       ],
     },
   },
@@ -1631,14 +1631,14 @@ export const CHANGELOG: ChangelogEntry[] = [
     highlights: {
       zh: [
         '自动更新 — 每 10 分钟后台检查新版本，顶栏右上角出现更新按钮，一键下载安装重启',
-        'API 设置持久化 — 凭证和 API 配置备份到 ~/.courteouscode/，Windows 更新后不再丢失',
+        'API 设置持久化 — 凭证和 API 配置备份到 ~/.blackbox/，Windows 更新后不再丢失',
         'Windows 命令行窗口消除 — 所有后台进程添加 CREATE_NO_WINDOW，彻底消灭闪烁的 CMD 窗口',
         '权限循环修复 — 权限响应改用原始 stdin 通道，GUI 始终跳过 CLI 权限提示',
         'CLI 路径搜索修复 — Windows 上跳过无扩展名的 JS 脚本，避免 error 193',
       ],
       en: [
         'Auto-update — Background check every 10 min, update button appears in top bar for one-click download & restart',
-        'API settings persistence — Credentials and API config backed up to ~/.courteouscode/, survives Windows updates',
+        'API settings persistence — Credentials and API config backed up to ~/.blackbox/, survives Windows updates',
         'Windows CMD window elimination — All background processes use CREATE_NO_WINDOW, no more flashing CMD windows',
         'Permission loop fix — Permission responses now use raw stdin; GUI always skips CLI permission prompts',
         'CLI path search fix — Skips extensionless JS scripts on Windows, preventing error 193',
@@ -1998,12 +1998,12 @@ export const CHANGELOG: ChangelogEntry[] = [
     date: '2025-12-01',
     highlights: {
       zh: [
-        'COURTEOUSCODE 首发 — Claude Code 桌面 GUI 客户端',
+        'BLACKBOX 首发 — Claude Code 桌面 GUI 客户端',
         'NDJSON 流式聊天 + 文件浏览器 + 会话管理 + 快照回退',
         '中英双语界面 + macOS 透明标题栏原生集成',
       ],
       en: [
-        'COURTEOUSCODE initial release — Desktop GUI for Claude Code',
+        'BLACKBOX initial release — Desktop GUI for Claude Code',
         'NDJSON streaming chat + file explorer + session management + snapshot/rewind',
         'Chinese/English bilingual UI + macOS transparent titlebar integration',
       ],

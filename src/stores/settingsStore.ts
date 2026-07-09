@@ -267,7 +267,7 @@ export const useSettingsStore = create<SettingsState>()(
         set((state) => ({ showHiddenFiles: !state.showHiddenFiles })),
     }),
     {
-      name: 'courteouscode-settings',
+      name: 'blackbox-settings',
       version: 8,
       migrate: (persistedState: unknown, version: number) => {
         const persisted = persistedState as Record<string, unknown>;
@@ -416,7 +416,7 @@ useSettingsStore.subscribe((state, prevState) => {
     if (!stdinId) return; // No active session
 
     bridge.setPermissionMode(stdinId, cliMode).catch((err: unknown) => {
-      console.error('[COURTEOUSCODE] Failed to set permission mode:', err);
+      console.error('[BLACKBOX] Failed to set permission mode:', err);
     });
   });
 });

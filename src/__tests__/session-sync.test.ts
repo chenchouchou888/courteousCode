@@ -1,5 +1,5 @@
 /**
- * Tests for the Her → COURTEOUSCODE session sync (2026-04-15).
+ * Tests for the Her → BLACKBOX session sync (2026-04-15).
  *
  * Covers:
  * 1. SessionInfo type contract (stdin_id + cli_session_id)

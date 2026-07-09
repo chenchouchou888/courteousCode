@@ -158,7 +158,7 @@
         {
           "cmd": "new-session",
           "flags": {
-            "cwd": "/tmp/courteouscode-test"
+            "cwd": "/tmp/blackbox-test"
           }
         },
         {
@@ -185,7 +185,7 @@
         {
           "cmd": "new-session",
           "flags": {
-            "cwd": "/tmp/courteouscode-test"
+            "cwd": "/tmp/blackbox-test"
           }
         },
         {
@@ -238,7 +238,7 @@
         {
           "cmd": "new-session",
           "flags": {
-            "cwd": "/tmp/courteouscode-test"
+            "cwd": "/tmp/blackbox-test"
           }
         },
         {
@@ -306,7 +306,7 @@
         {
           "cmd": "new-session",
           "flags": {
-            "cwd": "/tmp/courteouscode-test"
+            "cwd": "/tmp/blackbox-test"
           }
         },
         {
@@ -351,7 +351,7 @@
         {
           "cmd": "exec",
           "args": [
-            "JSON.stringify({env: window.__courteouscode_test ? 'test_helper_exists' : 'no_helper'})"
+            "JSON.stringify({env: window.__blackbox_test ? 'test_helper_exists' : 'no_helper'})"
           ]
         }
       ]

@@ -141,9 +141,9 @@ describe('Root Cause 2: AskUserQuestion dual-path race', () => {
       }
     };
 
-    // Path B: control_request intercepted by Rust, forwarded as courteouscode_permission_request
+    // Path B: control_request intercepted by Rust, forwarded as blackbox_permission_request
     const pathB_event = {
-      type: 'courteouscode_permission_request',
+      type: 'blackbox_permission_request',
       tool_name: 'AskUserQuestion',
       request_id: 'req_001',
       tool_use_id: 'toolu_01abc',  // should match Path A's block.id

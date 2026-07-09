@@ -5,7 +5,7 @@
       "timeout": 90000,
       "retry": 1,
       "setup": [
-        {"cmd": "new-session", "flags": {"cwd": "/tmp/courteouscode-test"}},
+        {"cmd": "new-session", "flags": {"cwd": "/tmp/blackbox-test"}},
         {"cmd": "check-editor", "assert": {"hasEditor": true}},
         {"cmd": "switch-model", "args": ["claude-sonnet-4-6"]}
       ],
@@ -17,7 +17,7 @@
         {"cmd": "stop"},
         {"cmd": "delay", "args": ["3000"]},
         {"cmd": "status", "assert": {"active": false}},
-        {"cmd": "exec", "args": ["(() => { const msgs = window.__courteouscode_test.getMessages({summary: false}).messages; const bad = msgs.filter(m => m.role === 'assistant' && m.type === 'text' && m.content && m.content.includes('No response requested')); return bad.length === 0 ? 'clean' : 'FOUND:' + bad.map(m => m.content.slice(0,80)).join('|'); })()"], "assert": {"result": "clean"}}
+        {"cmd": "exec", "args": ["(() => { const msgs = window.__blackbox_test.getMessages({summary: false}).messages; const bad = msgs.filter(m => m.role === 'assistant' && m.type === 'text' && m.content && m.content.includes('No response requested')); return bad.length === 0 ? 'clean' : 'FOUND:' + bad.map(m => m.content.slice(0,80)).join('|'); })()"], "assert": {"result": "clean"}}
       ],
       "teardown": [
         {"cmd": "stop", "continueOnError": true},
@@ -29,7 +29,7 @@
       "timeout": 90000,
       "retry": 1,
       "setup": [
-        {"cmd": "new-session", "flags": {"cwd": "/tmp/courteouscode-test"}},
+        {"cmd": "new-session", "flags": {"cwd": "/tmp/blackbox-test"}},
         {"cmd": "check-editor", "assert": {"hasEditor": true}},
         {"cmd": "switch-model", "args": ["claude-sonnet-4-6"]}
       ],
@@ -40,7 +40,7 @@
         {"cmd": "stop"},
         {"cmd": "delay", "args": ["3000"]},
         {"cmd": "status", "assert": {"active": false}},
-        {"cmd": "exec", "args": ["(() => { const msgs = window.__courteouscode_test.getMessages({summary: false}).messages; const bad = msgs.filter(m => m.role === 'assistant' && m.type === 'text' && m.content && m.content.includes('No response requested')); return bad.length === 0 ? 'clean' : 'FOUND:' + bad.map(m => m.content.slice(0,80)).join('|'); })()"], "assert": {"result": "clean"}}
+        {"cmd": "exec", "args": ["(() => { const msgs = window.__blackbox_test.getMessages({summary: false}).messages; const bad = msgs.filter(m => m.role === 'assistant' && m.type === 'text' && m.content && m.content.includes('No response requested')); return bad.length === 0 ? 'clean' : 'FOUND:' + bad.map(m => m.content.slice(0,80)).join('|'); })()"], "assert": {"result": "clean"}}
       ],
       "teardown": [
         {"cmd": "stop", "continueOnError": true},
@@ -52,7 +52,7 @@
       "timeout": 120000,
       "retry": 1,
       "setup": [
-        {"cmd": "new-session", "flags": {"cwd": "/tmp/courteouscode-test"}},
+        {"cmd": "new-session", "flags": {"cwd": "/tmp/blackbox-test"}},
         {"cmd": "check-editor", "assert": {"hasEditor": true}},
         {"cmd": "switch-model", "args": ["claude-sonnet-4-6"]}
       ],
@@ -65,7 +65,7 @@
         {"cmd": "type", "args": ["回复OK"]},
         {"cmd": "send"},
         {"cmd": "wait-until-done", "flags": {"timeout": "60000"}, "assert": {"status": "completed"}, "timeout": 65000},
-        {"cmd": "exec", "args": ["(() => { const msgs = window.__courteouscode_test.getMessages({summary: false}).messages; const bad = msgs.filter(m => m.role === 'assistant' && m.type === 'text' && m.content && m.content.includes('No response requested')); return bad.length === 0 ? 'clean' : 'FOUND:' + bad.map(m => m.content.slice(0,80)).join('|'); })()"], "assert": {"result": "clean"}}
+        {"cmd": "exec", "args": ["(() => { const msgs = window.__blackbox_test.getMessages({summary: false}).messages; const bad = msgs.filter(m => m.role === 'assistant' && m.type === 'text' && m.content && m.content.includes('No response requested')); return bad.length === 0 ? 'clean' : 'FOUND:' + bad.map(m => m.content.slice(0,80)).join('|'); })()"], "assert": {"result": "clean"}}
       ],
       "teardown": [
         {"cmd": "stop", "continueOnError": true},

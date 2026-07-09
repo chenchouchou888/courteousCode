@@ -2,7 +2,7 @@
 set -euo pipefail
 
 # ============================================================
-# courteousCode / CourteousAlpha Windows Cross-Build Script (macOS → Windows)
+# Black Box / CourteousAlpha Windows Cross-Build Script (macOS → Windows)
 #
 # Uses cargo-xwin to cross-compile Tauri for x86_64-pc-windows-msvc
 # from a macOS host. Produces NSIS installer + portable + updater sig.
@@ -13,7 +13,7 @@ set -euo pipefail
 #   rustup target add x86_64-pc-windows-msvc
 #
 # Usage:
-#   ./scripts/build-windows-local.sh              # stable (courteousCode)
+#   ./scripts/build-windows-local.sh              # stable (Black Box)
 #   EDITION=alpha ./scripts/build-windows-local.sh # alpha  (CourteousAlpha)
 # ============================================================
 
@@ -30,7 +30,7 @@ if [ "$EDITION" = "alpha" ]; then
   TAURI_EXTRA_ARGS="--config editions/alpha/tauri.alpha.conf.json"
 else
   TAG="v$VERSION"
-  PRODUCT_NAME="courteousCode"
+  PRODUCT_NAME="Black Box"
   TAURI_EXTRA_ARGS=""
 fi
 
@@ -44,9 +44,9 @@ echo "============================================"
 [ -f "$PROJECT_DIR/.env" ] && set -a && source "$PROJECT_DIR/.env" && set +a
 
 # --- Signing (updater) ---
-if [ -f "$HOME/.tauri/courteouscode.key" ]; then
+if [ -f "$HOME/.tauri/blackbox.key" ]; then
   export TAURI_SIGNING_PRIVATE_KEY
-  TAURI_SIGNING_PRIVATE_KEY="$(cat "$HOME/.tauri/courteouscode.key")"
+  TAURI_SIGNING_PRIVATE_KEY="$(cat "$HOME/.tauri/blackbox.key")"
   : "${TAURI_SIGNING_PRIVATE_KEY_PASSWORD:?Set TAURI_SIGNING_PRIVATE_KEY_PASSWORD in .env or environment}"
   export TAURI_SIGNING_PRIVATE_KEY_PASSWORD
 fi
@@ -111,7 +111,7 @@ echo ""
 echo "[5/5] Collecting artifacts..."
 
 WIN_BUNDLE="src-tauri/target/$TARGET/release/bundle"
-STAGING="/tmp/courteouscode-windows-release-$TAG"
+STAGING="/tmp/blackbox-windows-release-$TAG"
 rm -rf "$STAGING"
 mkdir -p "$STAGING"
 

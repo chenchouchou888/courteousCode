@@ -1,4 +1,5 @@
 import { useCallback, useRef, type MutableRefObject } from 'react';
+import { APP_NAME } from '../lib/edition';
 import { useChatStore, generateMessageId, type ChatMessage } from '../stores/chatStore';
 import { useSettingsStore, mapSessionModeToPermissionMode, getEffectiveMode, getEffectiveThinking } from '../stores/settingsStore';
 import { useSessionStore, setOrphanDrainCallback } from '../stores/sessionStore';
@@ -175,7 +176,7 @@ function markStdinReady(tabId: string, stdinId: string | undefined, model: strin
 
   if (stdinId && pendingReady?.stdinId === stdinId) {
     bridge.sendStdin(stdinId, pendingReady.text).catch((err) => {
-      console.error('[COURTEOUSCODE] Failed to flush ready-gated message:', err);
+      console.error('[BLACKBOX] Failed to flush ready-gated message:', err);
       cleanupStdinRoute(stdinId);
       store.setSessionMeta(tabId, {
         stdinId: undefined,
@@ -649,7 +650,7 @@ function shouldClearApiRetryForEvent(msg: any): boolean {
     || msg.type === 'content_block_delta'
     || msg.type === 'result'
     || msg.type === 'process_exit'
-    || msg.type === 'courteouscode_permission_request'
+    || msg.type === 'blackbox_permission_request'
     || msg.type === 'tool_result';
 }
 
@@ -739,7 +740,7 @@ export function useStreamProcessor(config: StreamProcessorConfig) {
     markStreamProgress(tabId, msg);
 
     switch (msg.type) {
-      case 'courteouscode_permission_request': {
+      case 'blackbox_permission_request': {
         // ExitPlanMode: auto-approve in non-plan modes; add plan_review card in plan mode
         if (msg.tool_name === 'ExitPlanMode') {
           const bgMeta = store.getTab(tabId)?.sessionMeta;
@@ -1308,7 +1309,7 @@ export function useStreamProcessor(config: StreamProcessorConfig) {
           const bgCompactThreshold = getAutoCompactThreshold(bgCompactTab?.sessionMeta.spawnedModel);
           if (bgResultInputTokens > bgCompactThreshold && !hasAutoCompactFired(tabId) && bgCompactStdinId && msg.subtype === 'success') {
             markAutoCompactFired(tabId);
-            console.log('[COURTEOUSCODE] Background tab auto-compact triggered:', tabId, 'inputTokens =', bgResultInputTokens);
+            console.log('[BLACKBOX] Background tab auto-compact triggered:', tabId, 'inputTokens =', bgResultInputTokens);
             const bgCompactMsgId = generateMessageId();
             const bgCompactStartedAt = Date.now();
             store.addMessage(tabId, {
@@ -1331,7 +1332,7 @@ export function useStreamProcessor(config: StreamProcessorConfig) {
             });
             store.setActivityStatus(tabId, { phase: 'thinking' });
             bridge.sendStdin(bgCompactStdinId, '/compact').catch((err) => {
-              console.error('[COURTEOUSCODE] Background tab auto-compact failed:', err);
+              console.error('[BLACKBOX] Background tab auto-compact failed:', err);
               completePendingCommand(tabId, { output: 'Compact failed to start' });
               if (store.getTab(tabId)?.sessionStatus === 'running') {
                 store.setSessionStatus(tabId, 'error');
@@ -1475,19 +1476,19 @@ export function useStreamProcessor(config: StreamProcessorConfig) {
 
     // Diagnostic: log first message and unrecognized types
     const KNOWN_TYPES = new Set([
-      'courteouscode_permission_request', 'stream_event', 'system', 'assistant',
+      'blackbox_permission_request', 'stream_event', 'system', 'assistant',
       'user', 'human', 'tool_result', 'tool_use_summary', 'result', 'process_exit',
       'content_block_delta', 'rate_limit_event',
     ]);
     if (msg.type === 'system' || msg.type === 'process_exit') {
-      console.log('[COURTEOUSCODE:stream]', msg.type, msg.subtype || '', msg.__stdinId || '');
+      console.log('[BLACKBOX:stream]', msg.type, msg.subtype || '', msg.__stdinId || '');
     }
     if (!KNOWN_TYPES.has(msg.type)) {
-      console.warn('[COURTEOUSCODE:stream] unhandled message type:', msg.type, msg);
+      console.warn('[BLACKBOX:stream] unhandled message type:', msg.type, msg);
     }
 
     // --- Background routing: detect if this stream belongs to a non-active tab ---
-    // MUST run before courteouscode_permission_request and all other handlers
+    // MUST run before blackbox_permission_request and all other handlers
     // to prevent messages from background sessions leaking into the active tab.
     const msgStdinId = msg.__stdinId;
     const directOwnerTabId = msgStdinId
@@ -1518,7 +1519,7 @@ export function useStreamProcessor(config: StreamProcessorConfig) {
     if (isBackground) {
       // Diagnostic: log background routing for non-trivial message types
       if (msg.type !== 'stream_event') {
-        console.log('[COURTEOUSCODE:route] background:', msg.type, 'owner:', ownerTabId, 'active:', activeTabId);
+        console.log('[BLACKBOX:route] background:', msg.type, 'owner:', ownerTabId, 'active:', activeTabId);
       }
       handleBackgroundStreamMessage(msg, ownerTabId);
       return;
@@ -1549,7 +1550,7 @@ export function useStreamProcessor(config: StreamProcessorConfig) {
     markStreamProgress(tabId, msg);
 
     // --- SDK Permission Request (routed through stream channel for reliability) ---
-    if (msg.type === 'courteouscode_permission_request') {
+    if (msg.type === 'blackbox_permission_request') {
 
       // ExitPlanMode: only show PlanReviewCard in Plan mode.
       // In other modes, auto-approve so the CLI continues without blocking.
@@ -1770,7 +1771,7 @@ export function useStreamProcessor(config: StreamProcessorConfig) {
 
         // Diagnostic: log tool_use starts for debugging plan mode flow
         if (evt.type === 'content_block_start' && evt.content_block?.type === 'tool_use') {
-          console.log('[COURTEOUSCODE:stream] tool_use start:', evt.content_block.name);
+          console.log('[BLACKBOX:stream] tool_use start:', evt.content_block.name);
 
           // UX: immediately surface that a tool is running. Without this, the
           // user sees no feedback during long tool input streams (e.g. Write
@@ -1931,7 +1932,7 @@ export function useStreamProcessor(config: StreamProcessorConfig) {
           // Hook lifecycle + status events — silently ignore (no UI for these in TC)
         } else {
           // FI-3: Log unknown subtypes so we know what we're missing
-          console.warn('[COURTEOUSCODE] Unhandled system subtype:', msg.subtype, msg);
+          console.warn('[BLACKBOX] Unhandled system subtype:', msg.subtype, msg);
         }
         break;
 
@@ -2425,7 +2426,7 @@ export function useStreamProcessor(config: StreamProcessorConfig) {
           const retryCandidate = pendingText || (typeof lastUserMsg === 'string' ? lastUserMsg : undefined);
           if (isThinkingSignatureError && retryCandidate) {
             const switchType = switchedFlag ? (meta.modelSwitched ? '模型' : 'API 配置') : '会话';
-            console.warn(`[COURTEOUSCODE] Thinking signature error after ${switchType} switch — auto-retrying without resume`);
+            console.warn(`[BLACKBOX] Thinking signature error after ${switchType} switch — auto-retrying without resume`);
             const retryText = retryCandidate;
 
             // Kill the current (failed) process + clean up listeners via lifecycle module
@@ -2534,7 +2535,7 @@ export function useStreamProcessor(config: StreamProcessorConfig) {
                   pendingReadyMessage: undefined,
                 });
               } catch (retryErr) {
-                console.error('[COURTEOUSCODE] Provider-switch auto-retry failed:', retryErr);
+                console.error('[BLACKBOX] Provider-switch auto-retry failed:', retryErr);
                 // spawnSession handles its own rollback — no manual listener cleanup needed
                 setSessionStatus('error');
                 addMessage({
@@ -2555,7 +2556,7 @@ export function useStreamProcessor(config: StreamProcessorConfig) {
         if (exitPlanModeSeenRef.current && getEffectiveMode(useChatStore.getState().getTab(tabId)?.sessionMeta) === 'code'
             && msg.subtype !== 'success') {
           exitPlanModeSeenRef.current = false;
-          console.log('[COURTEOUSCODE] Code mode ExitPlanMode exit detected — auto-restarting with --resume');
+          console.log('[BLACKBOX] Code mode ExitPlanMode exit detected — auto-restarting with --resume');
           const oldStdinId = useChatStore.getState().getTab(tabId)?.sessionMeta.stdinId;
           void (async () => {
             if (oldStdinId) {
@@ -2563,7 +2564,7 @@ export function useStreamProcessor(config: StreamProcessorConfig) {
                 await teardownSession(oldStdinId, tabId, 'plan-approve');
                 await waitForStdinCleared(tabId, oldStdinId);
               } catch (err) {
-                console.warn('[COURTEOUSCODE] ExitPlanMode auto-restart teardown failed:', err);
+                console.warn('[BLACKBOX] ExitPlanMode auto-restart teardown failed:', err);
                 return;
               }
             }
@@ -2752,7 +2753,7 @@ export function useStreamProcessor(config: StreamProcessorConfig) {
         const fgCompactThreshold = getAutoCompactThreshold(useChatStore.getState().getTab(tabId)?.sessionMeta.spawnedModel);
         if (resultInputTokens > fgCompactThreshold && !hasAutoCompactFired(tabId) && compactStdinId && msg.subtype === 'success') {
           markAutoCompactFired(tabId);
-          console.log('[COURTEOUSCODE] Auto-compact triggered: inputTokens =', resultInputTokens);
+          console.log('[BLACKBOX] Auto-compact triggered: inputTokens =', resultInputTokens);
           const compactMsgId = generateMessageId();
           addMessage({
             id: compactMsgId,
@@ -2770,7 +2771,7 @@ export function useStreamProcessor(config: StreamProcessorConfig) {
           setSessionStatus('running');
           setActivityStatus({ phase: 'thinking' });
           bridge.sendStdin(compactStdinId, '/compact').catch((err) => {
-            console.error('[COURTEOUSCODE] Auto-compact failed:', err);
+            console.error('[BLACKBOX] Auto-compact failed:', err);
           });
           // FI-4: Timeout fallback — if compact doesn't complete within 90s, auto-complete
           setTimeout(() => {
@@ -2913,7 +2914,7 @@ export function useStreamProcessor(config: StreamProcessorConfig) {
 
       case 'process_exit': {
         const exitingStdinId = msg.__stdinId;
-        console.log('[COURTEOUSCODE:session] process_exit received', { stdinId: exitingStdinId });
+        console.log('[BLACKBOX:session] process_exit received', { stdinId: exitingStdinId });
 
         // Ownership guard: verify this exit belongs to the current tab
         if (exitingStdinId) {
@@ -2985,11 +2986,11 @@ export function useStreamProcessor(config: StreamProcessorConfig) {
         // Desktop notification
         if (!document.hasFocus() && 'Notification' in window) {
           if (Notification.permission === 'granted') {
-            new Notification('COURTEOUSCODE', { body: t('notification.chatComplete') });
+            new Notification(APP_NAME, { body: t('notification.chatComplete') });
           } else if (Notification.permission === 'default') {
             Notification.requestPermission().then((perm) => {
               if (perm === 'granted') {
-                new Notification('COURTEOUSCODE', { body: t('notification.chatComplete') });
+                new Notification(APP_NAME, { body: t('notification.chatComplete') });
               }
             }).catch(() => {});
           }
@@ -3021,7 +3022,7 @@ export function useStreamProcessor(config: StreamProcessorConfig) {
 
     } catch (err) {
       // P1-4: catch-all for unexpected errors in stream message processing
-      console.error('[COURTEOUSCODE] handleStreamMessage error:', err, 'msg:', msg?.type, msg?.subtype);
+      console.error('[BLACKBOX] handleStreamMessage error:', err, 'msg:', msg?.type, msg?.subtype);
       const errTabId = useSessionStore.getState().selectedSessionId;
       if (errTabId) {
         useChatStore.getState().addMessage(errTabId, {

@@ -91,9 +91,9 @@ struct WatcherManager {
     watchers: Arc<TokioMutex<HashMap<String, notify::RecommendedWatcher>>>,
 }
 
-/// Shared app data directory name — all editions (COURTEOUSCODE / TCAlpha) use the same
+/// Shared app data directory name — all editions (BLACKBOX / TCAlpha) use the same
 /// directory so they share a single CLI installation and settings.
-const APP_DATA_DIR_NAME: &str = "com.courteouscode.app";
+const APP_DATA_DIR_NAME: &str = "com.blackbox.app";
 
 /// GCS bucket for Claude Code releases.
 const CLI_GCS_BASE: &str = "https://storage.googleapis.com/claude-code-dist-86c565f3-f756-42ad-8dfa-d59b1c096819/claude-code-releases";
@@ -132,7 +132,7 @@ fn get_local_git_bash() -> Option<String> {
 /// Returns the path to bash.exe if found.
 #[cfg(target_os = "windows")]
 pub(crate) fn find_git_bash() -> Option<String> {
-    // 1. Check app-local PortableGit first (auto-installed by COURTEOUSCODE)
+    // 1. Check app-local PortableGit first (auto-installed by BLACKBOX)
     if let Some(local) = get_local_git_bash() {
         return Some(local);
     }
@@ -407,7 +407,7 @@ fn system_proxy_url() -> Option<String> {
 
 /// Probe common local proxy ports and return the first reachable one.
 /// Re-probes every call (fast: ~100ms worst case) so proxy tools started after
-/// COURTEOUSCODE are still detected. Covers Clash, Surge, common SOCKS.
+/// BLACKBOX are still detected. Covers Clash, Surge, common SOCKS.
 fn probe_local_proxy() -> Option<String> {
     let ports: &[(u16, &str)] = &[
         (7890, "http"),   // Clash default
@@ -792,7 +792,7 @@ pub(crate) fn build_enriched_path() -> String {
 
 // --- Credential storage (TK-303) ---
 
-/// Directory for COURTEOUSCODE app data (may be wiped by NSIS installer on Windows)
+/// Directory for BLACKBOX app data (may be wiped by NSIS installer on Windows)
 fn app_data_dir() -> Result<std::path::PathBuf, String> {
     dirs::data_local_dir()
         .map(|d| d.join(APP_DATA_DIR_NAME))
@@ -800,10 +800,10 @@ fn app_data_dir() -> Result<std::path::PathBuf, String> {
 }
 
 /// Safe directory in user's home — survives Windows NSIS updates.
-/// Uses ~/.courteouscode/ which already stores tracked_sessions.txt.
+/// Uses ~/.blackbox/ which already stores tracked_sessions.txt.
 fn safe_data_dir() -> Result<std::path::PathBuf, String> {
     dirs::home_dir()
-        .map(|d| d.join(".courteouscode"))
+        .map(|d| d.join(".blackbox"))
         .ok_or_else(|| "Cannot determine home directory".to_string())
 }
 
@@ -842,7 +842,7 @@ struct ProvidersFile {
     providers: Vec<ApiProvider>,
 }
 
-const PARTIAL_MESSAGES_OVERRIDE_ENV: &str = "COURTEOUSCODE_INCLUDE_PARTIAL_MESSAGES";
+const PARTIAL_MESSAGES_OVERRIDE_ENV: &str = "BLACKBOX_INCLUDE_PARTIAL_MESSAGES";
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 struct ProviderRuntimeCapabilities {
@@ -1153,7 +1153,7 @@ async fn test_provider_connection(
 /// text/thinking stream for providers that do support Anthropic-compatible
 /// partial messages. Keep risky native-only env vars native-only, but default
 /// Anthropic-format API providers to the same partial-message stream path as
-/// native Claude. Providers can opt out with COURTEOUSCODE_INCLUDE_PARTIAL_MESSAGES=false.
+/// native Claude. Providers can opt out with BLACKBOX_INCLUDE_PARTIAL_MESSAGES=false.
 fn resolve_provider_env(provider_id: Option<&str>) -> Result<ProviderEnvResolution, String> {
     let Some(pid) = provider_id else {
         // No provider → assume native Anthropic (Claude Desktop / CCswitch).
@@ -1236,7 +1236,7 @@ fn resolve_provider_env(provider_id: Option<&str>) -> Result<ProviderEnvResoluti
     // HOT-FIX (v0.10.5): strip inherited OAuth / host-managed env vars when
     // using a third-party provider, WITHOUT the v0.10.3 side effects.
     //
-    // Background: the parent process (Her/COURTEOUSCODE) inherits CCswitch's
+    // Background: the parent process (Her/BLACKBOX) inherits CCswitch's
     // ANTHROPIC_AUTH_TOKEN and Claude Desktop's CLAUDE_CODE_OAUTH_TOKEN /
     // CLAUDE_CODE_PROVIDER_MANAGED_BY_HOST from its own environment.
     // tokio::process::Command inherits parent env by default, so the CLI
@@ -1501,7 +1501,7 @@ fn find_session_jsonl(session_id: &str) -> Option<std::path::PathBuf> {
     // Reject non-UUID session IDs to prevent path traversal (e.g. "../../../etc/passwd")
     if uuid::Uuid::parse_str(session_id).is_err() {
         eprintln!(
-            "[COURTEOUSCODE] find_session_jsonl: rejecting non-UUID session_id: {}",
+            "[BLACKBOX] find_session_jsonl: rejecting non-UUID session_id: {}",
             session_id
         );
         return None;
@@ -1542,7 +1542,7 @@ fn strip_thinking_blocks_from_session(session_id: &str) -> Result<usize, String>
         .ok_or_else(|| format!("Session JSONL not found for id: {}", session_id))?;
 
     eprintln!(
-        "[COURTEOUSCODE] strip_thinking_blocks: processing {:?}",
+        "[BLACKBOX] strip_thinking_blocks: processing {:?}",
         jsonl_path
     );
 
@@ -1588,7 +1588,7 @@ fn strip_thinking_blocks_from_session(session_id: &str) -> Result<usize, String>
         let backup_path = jsonl_path.with_extension("jsonl.bak");
         if let Err(e) = std::fs::copy(&jsonl_path, &backup_path) {
             eprintln!(
-                "[COURTEOUSCODE] strip_thinking_blocks: backup failed ({}) — proceeding anyway",
+                "[BLACKBOX] strip_thinking_blocks: backup failed ({}) — proceeding anyway",
                 e
             );
         }
@@ -1639,12 +1639,12 @@ fn strip_thinking_blocks_from_session(session_id: &str) -> Result<usize, String>
         }
 
         eprintln!(
-            "[COURTEOUSCODE] strip_thinking_blocks: stripped {} thinking blocks from {:?}",
+            "[BLACKBOX] strip_thinking_blocks: stripped {} thinking blocks from {:?}",
             total_stripped, jsonl_path
         );
     } else {
         eprintln!(
-            "[COURTEOUSCODE] strip_thinking_blocks: no thinking blocks found in {:?}",
+            "[BLACKBOX] strip_thinking_blocks: no thinking blocks found in {:?}",
             jsonl_path
         );
     }
@@ -1683,7 +1683,7 @@ fn strip_thinking_from_value(value: &mut serde_json::Value) -> Option<usize> {
 /// CLI's `--strict-mcp-config` doesn't strip the user's configured servers.
 ///
 /// Reads `~/.claude.json`, extracts the `mcpServers` object, and writes
-/// `{"mcpServers": {...}}` into `~/.courteouscode/mcp-session-<stdin_id>.json`.
+/// `{"mcpServers": {...}}` into `~/.blackbox/mcp-session-<stdin_id>.json`.
 /// Returns `None` when there are no servers to carry over (or on I/O error).
 fn build_mcp_scratch_config(stdin_id: &str) -> Option<std::path::PathBuf> {
     let home = dirs::home_dir()?;
@@ -1710,7 +1710,7 @@ fn build_mcp_scratch_config(stdin_id: &str) -> Option<std::path::PathBuf> {
         _ => return None,
     }
 
-    let dir = home.join(".courteouscode");
+    let dir = home.join(".blackbox");
     if std::fs::create_dir_all(&dir).is_err() {
         return None;
     }
@@ -1736,11 +1736,11 @@ fn safe_stdin_for_path(id: &str) -> String {
 }
 
 /// Remove the per-session MCP scratch file written by `build_mcp_scratch_config`.
-/// Called after the CLI process exits so `~/.courteouscode/` doesn't accumulate
+/// Called after the CLI process exits so `~/.blackbox/` doesn't accumulate
 /// stale files across sessions.
 fn cleanup_mcp_scratch_config(stdin_id: &str) {
     if let Some(home) = dirs::home_dir() {
-        let path = home.join(".courteouscode").join(format!(
+        let path = home.join(".blackbox").join(format!(
             "mcp-session-{}.json",
             safe_stdin_for_path(stdin_id)
         ));
@@ -1794,14 +1794,14 @@ async fn start_claude_session(
     // servers from ~/.claude.json (they'd slow cold start by 20-30 seconds).
     // BUT users also need their explicitly-configured MCP servers available
     // inside the session. Solution: write the mcpServers block from
-    // ~/.claude.json into a scratch file at ~/.courteouscode/mcp-session-<id>.json
+    // ~/.claude.json into a scratch file at ~/.blackbox/mcp-session-<id>.json
     // and pass it via --mcp-config. Cleaned up on process exit.
     let mcp_scratch_path = build_mcp_scratch_config(&session_id);
     if let Some(ref scratch) = mcp_scratch_path {
         args.push("--mcp-config".to_string());
         args.push(scratch.to_string_lossy().to_string());
         eprintln!(
-            "[COURTEOUSCODE] MCP scratch config for {}: {:?}",
+            "[BLACKBOX] MCP scratch config for {}: {:?}",
             session_id, scratch
         );
     }
@@ -1815,8 +1815,8 @@ async fn start_claude_session(
     if params.model_switch.unwrap_or(false) {
         if let Some(ref resume_id) = params.resume_session_id {
             match strip_thinking_blocks_from_session(resume_id) {
-                Ok(n) => eprintln!("[COURTEOUSCODE] model_switch: stripped {} thinking blocks before resume", n),
-                Err(e) => eprintln!("[COURTEOUSCODE] model_switch: thinking-block strip failed ({}), attempting resume anyway", e),
+                Ok(n) => eprintln!("[BLACKBOX] model_switch: stripped {} thinking blocks before resume", n),
+                Err(e) => eprintln!("[BLACKBOX] model_switch: thinking-block strip failed ({}), attempting resume anyway", e),
             }
         }
     }
@@ -1893,12 +1893,12 @@ async fn start_claude_session(
             args.remove(idx);
         }
         eprintln!(
-            "[COURTEOUSCODE] partial streaming disabled for provider {:?} (unsupported/unknown capability)",
+            "[BLACKBOX] partial streaming disabled for provider {:?} (unsupported/unknown capability)",
             params.provider_id
         );
     } else if !provider_caps.is_native_anthropic {
         eprintln!(
-            "[COURTEOUSCODE] partial streaming enabled for provider {:?}",
+            "[BLACKBOX] partial streaming enabled for provider {:?}",
             params.provider_id
         );
     }
@@ -1956,7 +1956,7 @@ async fn start_claude_session(
                 "1000000".to_string(),
             );
             eprintln!(
-                "[COURTEOUSCODE] Set CLAUDE_CODE_AUTO_COMPACT_WINDOW=1000000 for model {}",
+                "[BLACKBOX] Set CLAUDE_CODE_AUTO_COMPACT_WINDOW=1000000 for model {}",
                 model_name
             );
         }
@@ -2039,7 +2039,7 @@ async fn start_claude_session(
         let skip_proxy = is_internal || has_custom_endpoint;
         if skip_proxy {
             eprintln!(
-                "[COURTEOUSCODE] skipping proxy injection (endpoint: {:?})",
+                "[BLACKBOX] skipping proxy injection (endpoint: {:?})",
                 effective_base_url.as_deref().unwrap_or("")
             );
         }
@@ -2132,7 +2132,7 @@ async fn start_claude_session(
                 .current_dir(&params.cwd)
                 .env("PATH", &enriched_path)
                 // Clear CLAUDECODE env var so the CLI doesn't refuse to start
-                // when COURTEOUSCODE itself is launched from within a Claude Code session.
+                // when BLACKBOX itself is launched from within a Claude Code session.
                 .env_remove("CLAUDECODE");
             // Clear inherited ANTHROPIC_* env vars that conflict with our overrides
             for key in &inherited_keys_to_remove {
@@ -2222,16 +2222,16 @@ async fn start_claude_session(
 
     let pid = child.id().unwrap_or(0);
     eprintln!(
-        "[COURTEOUSCODE] CLI spawned: pid={}, bin={}, permission_mode={}",
+        "[BLACKBOX] CLI spawned: pid={}, bin={}, permission_mode={}",
         pid, claude_bin, permission_mode
     );
-    eprintln!("[COURTEOUSCODE] args: {:?}", &args);
-    eprintln!("[COURTEOUSCODE] PATH: {}", &enriched_path);
+    eprintln!("[BLACKBOX] args: {:?}", &args);
+    eprintln!("[BLACKBOX] PATH: {}", &enriched_path);
     eprintln!(
-        "[COURTEOUSCODE] resolved_env: {:?}",
+        "[BLACKBOX] resolved_env: {:?}",
         redacted_env_for_log(&resolved_env)
     );
-    eprintln!("[COURTEOUSCODE] cwd: {}", &params.cwd);
+    eprintln!("[BLACKBOX] cwd: {}", &params.cwd);
 
     // Capture stdin and store in StdinManager for sending follow-up messages
     let stdin = child.stdin.take().ok_or("Failed to capture stdin")?;
@@ -2264,15 +2264,15 @@ async fn start_claude_session(
             tokio::select! {
                 status = child.wait() => {
                     eprintln!(
-                        "[COURTEOUSCODE] child naturally exited for {}: code={:?} (stdout reader will emit process_exit)",
+                        "[BLACKBOX] child naturally exited for {}: code={:?} (stdout reader will emit process_exit)",
                         waiter_sid,
                         status.as_ref().ok().and_then(|s| s.code())
                     );
                 }
                 _ = kill_rx => {
-                    eprintln!("[COURTEOUSCODE] kill signal received for {} — killing child", waiter_sid);
+                    eprintln!("[BLACKBOX] kill signal received for {} — killing child", waiter_sid);
                     if let Err(e) = child.start_kill() {
-                        eprintln!("[COURTEOUSCODE] start_kill failed for {}: {}", waiter_sid, e);
+                        eprintln!("[BLACKBOX] start_kill failed for {}: {}", waiter_sid, e);
                     }
                     // Wait for child to actually die, then stdout reader will
                     // see EOF and do the ProcessExit + cleanup.
@@ -2324,7 +2324,7 @@ async fn start_claude_session(
                 Ok(None) => break, // normal EOF
                 Err(e) => {
                     eprintln!(
-                        "[COURTEOUSCODE:CRITICAL] stdout read error after {} lines: {}",
+                        "[BLACKBOX:CRITICAL] stdout read error after {} lines: {}",
                         line_count, e
                     );
                     break;
@@ -2349,7 +2349,7 @@ async fn start_claude_session(
                 };
                 let preview = &line[..end];
                 eprintln!(
-                    "[COURTEOUSCODE:stdout] #{} @{}ms type={} preview={}",
+                    "[BLACKBOX:stdout] #{} @{}ms type={} preview={}",
                     line_count,
                     elapsed,
                     serde_json::from_str::<Value>(&line)
@@ -2449,13 +2449,13 @@ async fn start_claude_session(
                                 .map(String::from);
 
                             eprintln!(
-                                "[COURTEOUSCODE] permission request: tool={} request_id={} parent_tool_use_id={:?} agent_id={:?}",
+                                "[BLACKBOX] permission request: tool={} request_id={} parent_tool_use_id={:?} agent_id={:?}",
                                 tool_name, request_id, parent_tool_use_id, agent_id
                             );
 
                             // Emit as a special stream message (reuses the working stream channel)
                             let perm_payload = serde_json::json!({
-                                "type": "courteouscode_permission_request",
+                                "type": "blackbox_permission_request",
                                 "request_id": request_id,
                                 "tool_name": tool_name,
                                 "input": input,
@@ -2468,7 +2468,7 @@ async fn start_claude_session(
                             continue; // Don't forward to stream as normal msg
                         }
                         "hook_callback" => {
-                            // Auto-allow hook callbacks (COURTEOUSCODE doesn't manage hooks)
+                            // Auto-allow hook callbacks (BLACKBOX doesn't manage hooks)
                             let auto_resp = serde_json::json!({
                                 "type": "control_response",
                                 "response": {
@@ -2483,7 +2483,7 @@ async fn start_claude_session(
                         "oauth_token_refresh" => {
                             // Deny oauth_token_refresh — allowing it makes CLI refresh to
                             // an Anthropic OAuth token that overrides the provider's API key.
-                            eprintln!("[COURTEOUSCODE] oauth_token_refresh: denying to prevent OAuth override (request_id={})", request_id);
+                            eprintln!("[BLACKBOX] oauth_token_refresh: denying to prevent OAuth override (request_id={})", request_id);
                             let deny_resp = serde_json::json!({
                                 "type": "control_response",
                                 "response": {
@@ -2497,13 +2497,13 @@ async fn start_claude_session(
                         }
                         other => {
                             // Unknown control request subtype — deny by default (P0-4 fix)
-                            eprintln!("[COURTEOUSCODE] control_request/{}: denying unknown subtype (request_id={})", other, request_id);
+                            eprintln!("[BLACKBOX] control_request/{}: denying unknown subtype (request_id={})", other, request_id);
                             let deny_resp = serde_json::json!({
                                 "type": "control_response",
                                 "response": {
                                     "subtype": "success",
                                     "request_id": request_id,
-                                    "response": { "behavior": "deny", "message": format!("Unknown permission type '{}' denied by COURTEOUSCODE", other) }
+                                    "response": { "behavior": "deny", "message": format!("Unknown permission type '{}' denied by BLACKBOX", other) }
                                 }
                             });
                             let _ = stdin_clone.send(&sid_clone, &deny_resp.to_string()).await;
@@ -2512,7 +2512,7 @@ async fn start_claude_session(
                     }
                 } else {
                     eprintln!(
-                        "[COURTEOUSCODE] control_request missing 'request' field: {}",
+                        "[BLACKBOX] control_request missing 'request' field: {}",
                         &line[..line.len().min(200)]
                     );
                     // Auto-allow to avoid blocking CLI
@@ -2559,7 +2559,7 @@ async fn start_claude_session(
                 // WebView is unresponsive for a sustained period.
                 if emit_fail_count == 1 || emit_fail_count % 10 == 0 {
                     eprintln!(
-                        "[COURTEOUSCODE] emit_to_frontend failed (#{emit_fail_count}): {e} — continuing (watchdog will recover user session if needed)"
+                        "[BLACKBOX] emit_to_frontend failed (#{emit_fail_count}): {e} — continuing (watchdog will recover user session if needed)"
                     );
                 }
                 // DO NOT break. Previously we broke after 10 failures, but
@@ -2572,7 +2572,7 @@ async fn start_claude_session(
             } else {
                 if emit_fail_count > 0 {
                     eprintln!(
-                        "[COURTEOUSCODE] emit_to_frontend recovered after {} failures",
+                        "[BLACKBOX] emit_to_frontend recovered after {} failures",
                         emit_fail_count
                     );
                 }
@@ -2586,7 +2586,7 @@ async fn start_claude_session(
         // The child waiter task only provides a kill proxy; it does NOT
         // emit process_exit, to avoid racing with stdout drain.
         eprintln!(
-            "[COURTEOUSCODE] stdout reader reached EOF for {} after {} lines",
+            "[BLACKBOX] stdout reader reached EOF for {} after {} lines",
             sid_clone, line_count
         );
         // Emit process_exit on the stream channel (primary detection)
@@ -2809,10 +2809,10 @@ async fn list_active_processes(state: State<'_, ProcessManager>) -> Result<Vec<S
     Ok(state.active_ids().await)
 }
 
-/// Path to the file tracking COURTEOUSCODE-managed session IDs
+/// Path to the file tracking BLACKBOX-managed session IDs
 fn tracked_sessions_path() -> std::path::PathBuf {
     let home = dirs::home_dir().unwrap_or_else(|| std::path::PathBuf::from("."));
-    home.join(".courteouscode").join("tracked_sessions.txt")
+    home.join(".blackbox").join("tracked_sessions.txt")
 }
 
 /// Load the set of tracked session IDs.
@@ -2832,7 +2832,7 @@ fn load_tracked_sessions() -> std::collections::HashSet<String> {
     }
 
     // Fallback: if tracking file is missing/empty, rebuild from disk.
-    // Use session_names.json (courteouscode_session_names.json) as a filter to avoid
+    // Use session_names.json (blackbox_session_names.json) as a filter to avoid
     // importing Claude Code CLI or Her sessions. Only if session_names is also
     // missing do we fall back to importing all sessions (better than losing data).
     if set.is_empty() {
@@ -2898,7 +2898,7 @@ fn load_tracked_sessions() -> std::collections::HashSet<String> {
                     "all (no filter)"
                 };
                 eprintln!(
-                    "[COURTEOUSCODE] Rebuilt tracked_sessions.txt: {} sessions ({})",
+                    "[BLACKBOX] Rebuilt tracked_sessions.txt: {} sessions ({})",
                     set.len(),
                     mode
                 );
@@ -2909,7 +2909,7 @@ fn load_tracked_sessions() -> std::collections::HashSet<String> {
     set
 }
 
-/// Register a CLI session ID as managed by COURTEOUSCODE
+/// Register a CLI session ID as managed by BLACKBOX
 #[tauri::command]
 async fn track_session(session_id: String) -> Result<(), String> {
     // Defense-in-depth: never persist desk-generated temporary IDs
@@ -2919,7 +2919,7 @@ async fn track_session(session_id: String) -> Result<(), String> {
     let path = tracked_sessions_path();
     if let Some(parent) = path.parent() {
         std::fs::create_dir_all(parent)
-            .map_err(|e| format!("Failed to create .courteouscode dir: {}", e))?;
+            .map_err(|e| format!("Failed to create .blackbox dir: {}", e))?;
     }
     use std::io::Write;
     let mut file = std::fs::OpenOptions::new()
@@ -3017,7 +3017,7 @@ async fn list_sessions() -> Result<Vec<Value>, String> {
         return Ok(vec![]);
     }
 
-    // Only show sessions tracked by COURTEOUSCODE
+    // Only show sessions tracked by BLACKBOX
     let tracked = load_tracked_sessions();
 
     let mut sessions = vec![];
@@ -3031,7 +3031,7 @@ async fn list_sessions() -> Result<Vec<Value>, String> {
                             if let Some(name) = path.file_stem() {
                                 let id = name.to_string_lossy().to_string();
 
-                                // Skip sessions not created by COURTEOUSCODE
+                                // Skip sessions not created by BLACKBOX
                                 if !tracked.contains(&id) {
                                     continue;
                                 }
@@ -4551,22 +4551,22 @@ async fn save_temp_file(
     // Falls back to system temp if cwd is not set.
     let tmp = if let Some(ref dir) = cwd {
         let p = std::path::PathBuf::from(dir)
-            .join(".courteouscode")
+            .join(".blackbox")
             .join("tmp");
         if std::fs::create_dir_all(&p).is_ok() {
-            // Ensure .courteouscode is gitignored in user's project
+            // Ensure .blackbox is gitignored in user's project
             let gitignore = std::path::PathBuf::from(dir)
-                .join(".courteouscode")
+                .join(".blackbox")
                 .join(".gitignore");
             if !gitignore.exists() {
                 let _ = std::fs::write(&gitignore, "*\n");
             }
             p
         } else {
-            std::env::temp_dir().join("courteouscode")
+            std::env::temp_dir().join("blackbox")
         }
     } else {
-        std::env::temp_dir().join("courteouscode")
+        std::env::temp_dir().join("blackbox")
     };
     std::fs::create_dir_all(&tmp).map_err(|e| format!("Failed to create temp dir: {}", e))?;
 
@@ -5246,7 +5246,7 @@ async fn toggle_skill_enabled(
 ///
 /// **Why this exists**: macOS ships `/usr/bin/git` as a shim. When Xcode Command Line Tools
 /// (CLT) are not installed, running `/usr/bin/git` spawns a **GUI dialog** asking the user to
-/// install CLT. COURTEOUSCODE calls git for snapshot/rewind on every message, so this popup
+/// install CLT. BLACKBOX calls git for snapshot/rewind on every message, so this popup
 /// would appear repeatedly.
 ///
 /// Strategy:
@@ -6801,7 +6801,7 @@ fn inject_unix_shell_path(dir: &str) {
         None => return,
     };
     let export_line = format!("export PATH=\"{}:$PATH\"", dir);
-    let marker = "# Added by COURTEOUSCODE";
+    let marker = "# Added by BLACKBOX";
     let block = format!("\n{}\n{}\n", marker, export_line);
 
     let profiles = [
@@ -7741,10 +7741,10 @@ async fn check_claude_auth() -> Result<AuthStatus, String> {
     }
 }
 
-/// Path to the session-names metadata file (~/.claude/courteouscode_session_names.json).
+/// Path to the session-names metadata file (~/.claude/blackbox_session_names.json).
 fn session_names_path() -> Result<std::path::PathBuf, String> {
     let home = dirs::home_dir().ok_or("Cannot find home dir")?;
-    Ok(home.join(".claude").join("courteouscode_session_names.json"))
+    Ok(home.join(".claude").join("blackbox_session_names.json"))
 }
 
 /// Load custom session display names from disk.
@@ -7768,12 +7768,12 @@ async fn save_custom_previews(data: Value) -> Result<(), String> {
     std::fs::write(&path, content).map_err(|e| format!("Failed to write session names: {}", e))
 }
 
-fn courteouscode_data_path(filename: &str) -> Result<std::path::PathBuf, String> {
+fn blackbox_data_path(filename: &str) -> Result<std::path::PathBuf, String> {
     let home = dirs::home_dir().ok_or("Cannot find home dir")?;
-    let dir = home.join(".courteouscode");
+    let dir = home.join(".blackbox");
     if !dir.exists() {
         std::fs::create_dir_all(&dir)
-            .map_err(|e| format!("Failed to create .courteouscode dir: {}", e))?;
+            .map_err(|e| format!("Failed to create .blackbox dir: {}", e))?;
     }
     Ok(dir.join(filename))
 }
@@ -7781,7 +7781,7 @@ fn courteouscode_data_path(filename: &str) -> Result<std::path::PathBuf, String>
 /// Load pinned session IDs from disk.
 #[tauri::command]
 async fn load_pinned_sessions() -> Result<Value, String> {
-    let path = courteouscode_data_path("pinned.json")?;
+    let path = blackbox_data_path("pinned.json")?;
     if !path.exists() {
         return Ok(serde_json::json!([]));
     }
@@ -7793,7 +7793,7 @@ async fn load_pinned_sessions() -> Result<Value, String> {
 /// Save pinned session IDs to disk.
 #[tauri::command]
 async fn save_pinned_sessions(data: Value) -> Result<(), String> {
-    let path = courteouscode_data_path("pinned.json")?;
+    let path = blackbox_data_path("pinned.json")?;
     let content = serde_json::to_string_pretty(&data)
         .map_err(|e| format!("Failed to serialize pinned sessions: {}", e))?;
     std::fs::write(&path, content).map_err(|e| format!("Failed to write pinned sessions: {}", e))
@@ -7802,7 +7802,7 @@ async fn save_pinned_sessions(data: Value) -> Result<(), String> {
 /// Load archived session IDs from disk.
 #[tauri::command]
 async fn load_archived_sessions() -> Result<Value, String> {
-    let path = courteouscode_data_path("archived.json")?;
+    let path = blackbox_data_path("archived.json")?;
     if !path.exists() {
         return Ok(serde_json::json!([]));
     }
@@ -7814,7 +7814,7 @@ async fn load_archived_sessions() -> Result<Value, String> {
 /// Save archived session IDs to disk.
 #[tauri::command]
 async fn save_archived_sessions(data: Value) -> Result<(), String> {
-    let path = courteouscode_data_path("archived.json")?;
+    let path = blackbox_data_path("archived.json")?;
     let content = serde_json::to_string_pretty(&data)
         .map_err(|e| format!("Failed to serialize archived sessions: {}", e))?;
     std::fs::write(&path, content).map_err(|e| format!("Failed to write archived sessions: {}", e))
@@ -7823,7 +7823,7 @@ async fn save_archived_sessions(data: Value) -> Result<(), String> {
 /// Load session groups (the grouping ledger) from disk.
 #[tauri::command]
 async fn load_session_groups() -> Result<Value, String> {
-    let path = courteouscode_data_path("groups.json")?;
+    let path = blackbox_data_path("groups.json")?;
     if !path.exists() {
         return Ok(serde_json::json!([]));
     }
@@ -7835,7 +7835,7 @@ async fn load_session_groups() -> Result<Value, String> {
 /// Save session groups (the grouping ledger) to disk.
 #[tauri::command]
 async fn save_session_groups(data: Value) -> Result<(), String> {
-    let path = courteouscode_data_path("groups.json")?;
+    let path = blackbox_data_path("groups.json")?;
     let content = serde_json::to_string_pretty(&data)
         .map_err(|e| format!("Failed to serialize session groups: {}", e))?;
     std::fs::write(&path, content).map_err(|e| format!("Failed to write session groups: {}", e))
@@ -8187,16 +8187,16 @@ pub fn run() {
                 .plugin(tauri_plugin_updater::Builder::new().build())?;
 
             // Register test harness socket server (debug builds only).
-            // Provides a Unix socket that courteouscode-cli.mjs connects to for
+            // Provides a Unix socket that blackbox-cli.mjs connects to for
             // automated GUI testing. Release builds never include this.
             #[cfg(debug_assertions)]
             {
-                let mcp_config = tauri_plugin_mcp::PluginConfig::new("COURTEOUSCODE".to_string())
+                let mcp_config = tauri_plugin_mcp::PluginConfig::new("BLACKBOX".to_string())
                     .start_socket_server(true)
-                    .socket_path(std::path::PathBuf::from("/tmp/courteouscode-test.sock"));
+                    .socket_path(std::path::PathBuf::from("/tmp/blackbox-test.sock"));
                 app.handle()
                     .plugin(tauri_plugin_mcp::init_with_config(mcp_config))?;
-                eprintln!("[COURTEOUSCODE] Test harness registered on /tmp/courteouscode-test.sock");
+                eprintln!("[BLACKBOX] Test harness registered on /tmp/blackbox-test.sock");
             }
 
             #[cfg(not(desktop))]

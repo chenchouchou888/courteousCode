@@ -138,7 +138,7 @@ export const useProviderStore = create<ProviderState>()((set, get) => ({
 function migrateFromSettingsStore(): ApiProvider | null {
   try {
     // Read old settings from localStorage (settingsStore persists there)
-    const raw = localStorage.getItem('courteouscode-settings');
+    const raw = localStorage.getItem('blackbox-settings');
     if (!raw) return null;
     const parsed = JSON.parse(raw);
     const state = parsed?.state;

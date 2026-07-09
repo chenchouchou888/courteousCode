@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-// courteouscode-cli.mjs — CLI tool for driving COURTEOUSCODE GUI (debug builds)
+// blackbox-cli.mjs — CLI tool for driving BLACKBOX GUI (debug builds)
 // Connects to the test harness Unix socket provided by tauri-plugin-mcp.
 // All output is JSON (one line per invocation) for AI consumption.
 // Zero external dependencies — Node.js built-in modules only.
@@ -14,7 +14,7 @@ import { dirname, resolve } from 'node:path';
 
 // ─── Constants ───────────────────────────────────────────────────────────────
 
-const SOCKET_PATH = process.env.COURTEOUSCODE_SOCKET || '/tmp/courteouscode-test.sock';
+const SOCKET_PATH = process.env.BLACKBOX_SOCKET || '/tmp/blackbox-test.sock';
 const DEFAULT_TIMEOUT = 10_000;
 const SCREENSHOT_TIMEOUT = 15_000;
 const RESTART_TIMEOUT = 120_000;
@@ -54,7 +54,7 @@ function createClient(socketPath) {
         }
       } catch {
         // Protocol error: log to stderr but keep processing
-        process.stderr.write(`[courteouscode-cli] malformed socket response: ${line.slice(0, 120)}\n`);
+        process.stderr.write(`[blackbox-cli] malformed socket response: ${line.slice(0, 120)}\n`);
       }
     }
   }
@@ -64,7 +64,7 @@ function createClient(socketPath) {
       return new Promise((resolve, reject) => {
         socket = connect({ path: socketPath }, () => {
           // After successful connect, set up disconnect handlers
-          socket.on('close', () => rejectAll('Socket closed by COURTEOUSCODE'));
+          socket.on('close', () => rejectAll('Socket closed by BLACKBOX'));
           socket.on('end', () => rejectAll('Socket connection ended'));
           resolve();
         });
@@ -102,7 +102,7 @@ function createClient(socketPath) {
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
-/** Run arbitrary JS in the COURTEOUSCODE webview. Returns the raw result string. */
+/** Run arbitrary JS in the BLACKBOX webview. Returns the raw result string. */
 async function execJs(client, code, timeout = DEFAULT_TIMEOUT) {
   const resp = await client.send('execute_js', { code, window_label: 'main' }, timeout);
   if (!resp.success) throw new Error(resp.error || 'execute_js failed');
@@ -110,9 +110,9 @@ async function execJs(client, code, timeout = DEFAULT_TIMEOUT) {
   return resp.data?.result;
 }
 
-/** Call a window.__courteouscode_test method. Returns parsed JSON result. */
+/** Call a window.__blackbox_test method. Returns parsed JSON result. */
 async function callHelper(client, method, argsStr = '') {
-  const code = `JSON.stringify(window.__courteouscode_test.${method}(${argsStr}))`;
+  const code = `JSON.stringify(window.__blackbox_test.${method}(${argsStr}))`;
   const raw = await execJs(client, code);
   if (raw == null || raw === 'undefined' || raw === '') return null;
   return JSON.parse(raw);
@@ -232,7 +232,7 @@ const commands = {
     const startCode = `(function(){
       if(!window.__tkn_loads) window.__tkn_loads = {};
       window.__tkn_loads[${JSON.stringify(reqId)}] = {done:false, result:null};
-      window.__courteouscode_test.loadSession(${JSON.stringify(id)})
+      window.__blackbox_test.loadSession(${JSON.stringify(id)})
         .then(function(r){ window.__tkn_loads[${JSON.stringify(reqId)}] = {done:true, result:r}; })
         .catch(function(e){ window.__tkn_loads[${JSON.stringify(reqId)}] = {done:true, result:{error:e.message}}; });
       return 'started';
@@ -271,10 +271,10 @@ const commands = {
     let last = null;
     while (Date.now() < deadline) {
       const code = `JSON.stringify({
-        hasEditor: !!window.__courteouscode_editor || !!document.querySelector('[data-testid=send-button], [data-chat-input], .tiptap[contenteditable=true]'),
-        editorReady: !!window.__courteouscode_editor,
+        hasEditor: !!window.__blackbox_editor || !!document.querySelector('[data-testid=send-button], [data-chat-input], .tiptap[contenteditable=true]'),
+        editorReady: !!window.__blackbox_editor,
         hasChatPanel: !!document.querySelector('[data-testid=chat-messages], .selectable'),
-        session: window.__courteouscode_test.status().session
+        session: window.__blackbox_test.status().session
       })`;
       try {
         const raw = await execJs(client, code, 3000);
@@ -575,11 +575,11 @@ const commands = {
       }
     }
 
-    // Step 2.5a: Kill any orphaned target/debug/courteouscode processes that survived PGID kill.
+    // Step 2.5a: Kill any orphaned target/debug/blackbox processes that survived PGID kill.
     // After hours of unattended testing with repeated relaunches, child processes can accumulate
     // as zombies (~1.5 GB after 76 processes). pkill returns non-zero if no matches, so wrap in try/catch.
     try {
-      execSync('pkill -9 -f "target/debug/courteouscode"', { timeout: 5000, stdio: 'ignore' });
+      execSync('pkill -9 -f "target/debug/blackbox"', { timeout: 5000, stdio: 'ignore' });
       await sleep(500);
     } catch { /* no matching processes — expected on clean shutdown */ }
 
@@ -657,7 +657,7 @@ const commands = {
 
   async help() {
     return {
-      usage: 'node scripts/courteouscode-cli.mjs <command> [args] [--flags]',
+      usage: 'node scripts/blackbox-cli.mjs <command> [args] [--flags]',
       commands: {
         health: ['ping', 'status', 'restart [--timeout MS]', 'relaunch [--timeout MS]'],
         chat: ['type TEXT', 'send', 'stop', 'delete-session', 'get-messages [--last N] [--all] [--tab ID] [--full]', 'check-editor'],
@@ -669,7 +669,7 @@ const commands = {
         waiting: ['wait-for --text TEXT|--selector SEL [--timeout MS]', 'wait-until-done [--timeout MS]', 'wait-for-phase PHASE [--timeout MS]', 'delay MS'],
         raw: ['exec JS_CODE [--timeout MS]'],
       },
-      env: { COURTEOUSCODE_SOCKET: `Override socket path (default: ${SOCKET_PATH})` },
+      env: { BLACKBOX_SOCKET: `Override socket path (default: ${SOCKET_PATH})` },
     };
   },
 };
@@ -716,10 +716,10 @@ async function main() {
   } catch (err) {
     const msg =
       err.code === 'ENOENT'
-        ? `COURTEOUSCODE not running (socket not found at ${SOCKET_PATH}). Start with: pnpm tauri dev`
+        ? `BLACKBOX not running (socket not found at ${SOCKET_PATH}). Start with: pnpm tauri dev`
         : err.code === 'ECONNREFUSED'
-          ? `Socket exists but connection refused. Is COURTEOUSCODE debug build running?`
-          : `Cannot connect to COURTEOUSCODE: ${err.message}`;
+          ? `Socket exists but connection refused. Is BLACKBOX debug build running?`
+          : `Cannot connect to BLACKBOX: ${err.message}`;
     out({ ok: false, error: msg });
     process.exit(1);
   }

@@ -1,11 +1,11 @@
-# COURTEOUSCODE Architecture
+# BLACKBOX Architecture
 
 > **Purpose**: Help AI assistants quickly understand the codebase structure, avoiding full source reads on every debug session.
 > **Last updated**: 2026-03-02
 
 ## Overview
 
-COURTEOUSCODE is a native desktop GUI for Claude Code CLI, built with **Tauri 2 + React 19 + TypeScript + Tailwind CSS 4 + Zustand 5**. It supports macOS, Windows, and Linux.
+BLACKBOX is a native desktop GUI for Claude Code CLI, built with **Tauri 2 + React 19 + TypeScript + Tailwind CSS 4 + Zustand 5**. It supports macOS, Windows, and Linux.
 
 ```
 ┌─────────────────────────────────────────────────────┐
@@ -33,7 +33,7 @@ COURTEOUSCODE is a native desktop GUI for Claude Code CLI, built with **Tauri 2 
 ## Directory Structure
 
 ```
-COURTEOUSCODE/
+BLACKBOX/
 ├── src/                          # Frontend (React 19 + TS, ~77 files)
 │   ├── App.tsx                   # Entry: theme, font, file watcher, global hotkeys
 │   ├── main.tsx                  # React root + ErrorBoundary
@@ -118,7 +118,7 @@ All frontend-to-backend communication goes through this single file (~470 LOC).
 
 ```
 claude:stream:{sessionId}      → NDJSON messages from Claude CLI stdout
-                                  (includes courteouscode_permission_request for SDK protocol)
+                                  (includes blackbox_permission_request for SDK protocol)
 claude:stderr:{sessionId}      → Stderr output
 claude:exit:{sessionId}        → Process exit
 sessions:changed               → Session list invalidation
@@ -142,13 +142,13 @@ setup:login:exit               → Login process exit
 
 Bidirectional communication with Claude CLI when launched with `--permission-prompt-tool stdio`:
 
-- **CLI → COURTEOUSCODE** (`control_request`): Permission requests (`can_use_tool`), hook callbacks
-- **COURTEOUSCODE → CLI** (`control_response`): Allow/deny decisions with `updatedInput`
-- **COURTEOUSCODE → CLI** (`control_request`): Runtime commands — `interrupt`, `set_permission_mode`, `set_model`, `rewind_files`
+- **CLI → BLACKBOX** (`control_request`): Permission requests (`can_use_tool`), hook callbacks
+- **BLACKBOX → CLI** (`control_response`): Allow/deny decisions with `updatedInput`
+- **BLACKBOX → CLI** (`control_request`): Runtime commands — `interrupt`, `set_permission_mode`, `set_model`, `rewind_files`
 
 ### Provider System
 
-Multi-provider API configuration stored as plaintext JSON at `~/.courteouscode/providers.json`:
+Multi-provider API configuration stored as plaintext JSON at `~/.blackbox/providers.json`:
 - Supports Anthropic and OpenAI API formats
 - Per-provider: base URL, API key, model tier mappings, extra env vars
 - Environment variable injection into CLI child process
@@ -182,7 +182,7 @@ Environment variables injected:
 ### Binary Discovery
 
 `find_claude_binary()` searches in priority order:
-1. App-local download directory (`~/Library/Application Support/com.courteouscode.app/cli/`)
+1. App-local download directory (`~/Library/Application Support/com.blackbox.app/cli/`)
 2. npm-global/bin (local `--prefix` install)
 3. System PATH (`which claude`)
 4. Claude Desktop App bundled CLI (versioned directories)
@@ -228,7 +228,7 @@ User types follow-up → bridge.sendStdin(sessionId, message)
 ### Permission Request Flow (SDK Control Protocol)
 ```
 CLI stdout: control_request { subtype: "can_use_tool", tool_name, input }
-  → Rust intercepts, emits courteouscode_permission_request on stream channel
+  → Rust intercepts, emits blackbox_permission_request on stream channel
   → Frontend renders PermissionCard with approve/deny buttons
   → User clicks → bridge.respondPermission(sessionId, requestId, allow, updatedInput)
   → Rust sends control_response via StdinManager → CLI proceeds
@@ -388,7 +388,7 @@ pnpm tauri build
 - Max output tokens: 64,000 (env var override)
 - Node.js LTS for local install: v22.22.0
 - Title generation model: `claude-haiku-4-5-20251001`
-- Data dirs: `~/.courteouscode/` (persistent), `~/Library/.../com.courteouscode.app/` (app data)
+- Data dirs: `~/.blackbox/` (persistent), `~/Library/.../com.blackbox.app/` (app data)
 
 ### Cross-Platform Notes
 

@@ -100,11 +100,11 @@ export function PermissionCard({ message }: Props) {
   // Expose permission respond handler for test harness (dev only)
   useEffect(() => {
     if (import.meta.env.DEV && isPending) {
-      (window as any).__courteouscode_respond_permission = handleRespond;
+      (window as any).__blackbox_respond_permission = handleRespond;
     }
     return () => {
       if (import.meta.env.DEV) {
-        delete (window as any).__courteouscode_respond_permission;
+        delete (window as any).__blackbox_respond_permission;
       }
     };
   }, [handleRespond, isPending]);

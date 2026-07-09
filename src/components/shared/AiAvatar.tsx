@@ -1,9 +1,9 @@
 import { useSettingsStore } from '../../stores/settingsStore';
 
-/** Default app icon — uses the courteousCode logo PNG */
+/** Default app icon — uses the Black Box logo PNG */
 function DefaultIcon() {
   return (
-    <img src="/app-logo.png" alt="courteousCode" className="w-full h-full object-cover" />
+    <img src="/app-logo.png" alt="Black Box" className="w-full h-full object-cover" />
   );
 }
 

@@ -25,8 +25,8 @@ class ErrorBoundary extends React.Component<
 
   handleClearAndReload = () => {
     try {
-      localStorage.removeItem("courteouscode-settings");
-      localStorage.removeItem("courteouscode_custom_previews");
+      localStorage.removeItem("blackbox-settings");
+      localStorage.removeItem("blackbox_custom_previews");
     } catch {
       // ignore
     }

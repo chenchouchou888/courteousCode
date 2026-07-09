@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Run every currently defined courteousCode E2E phase, then analyze the reports.
+# Run every currently defined Black Box E2E phase, then analyze the reports.
 
 set -euo pipefail
 cd "$(dirname "$0")/../.."

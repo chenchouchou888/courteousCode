@@ -1,8 +1,8 @@
 <div align="center">
 
-<img src="public/app-icon.png" alt="courteousCode Logo" width="120" />
+<img src="public/app-icon.png" alt="Black Box Logo" width="120" />
 
-# courteousCode
+# Black Box
 
 A desktop GUI client for Claude Code CLI.
 
@@ -15,7 +15,7 @@ A desktop GUI client for Claude Code CLI.
 
 ## Overview
 
-courteousCode wraps the [Claude Code CLI](https://docs.anthropic.com/en/docs/claude-code) in a native desktop app — file explorer, session management, streaming chat, and structured permission control in one window.
+Black Box wraps the [Claude Code CLI](https://docs.anthropic.com/en/docs/claude-code) in a native desktop app — file explorer, session management, streaming chat, and structured permission control in one window.
 
 ## Build from Source
 

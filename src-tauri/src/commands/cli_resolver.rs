@@ -964,11 +964,11 @@ pub fn unpin_cli() -> Result<(), String> {
 
 // ─── PATH Injection ────────────────────────────────────────
 
-/// Marker used to identify COURTEOUSCODE-injected blocks in shell profile files.
+/// Marker used to identify BLACKBOX-injected blocks in shell profile files.
 #[cfg(not(target_os = "windows"))]
-const APP_PATH_MARKER: &str = "# Added by COURTEOUSCODE";
+const APP_PATH_MARKER: &str = "# Added by BLACKBOX";
 
-/// Strip all `# Added by COURTEOUSCODE\nexport PATH=...` blocks from a shell profile.
+/// Strip all `# Added by BLACKBOX\nexport PATH=...` blocks from a shell profile.
 ///
 /// Only removes two-line sequences where the marker is immediately followed
 /// by an `export PATH=` line. A marker line followed by something else is
@@ -1006,7 +1006,7 @@ fn strip_app_blocks(content: &str, marker: &str) -> String {
 ///    non-executable files) — writing PATH entries that don't contain a
 ///    working `claude` binary is worse than failing visibly.
 /// 2. Find the first existing profile from a prioritized list (.zshrc first).
-/// 3. Strip all previous COURTEOUSCODE blocks from that profile to prevent
+/// 3. Strip all previous BLACKBOX blocks from that profile to prevent
 ///    accumulation when users click through different candidates.
 /// 4. Append a fresh block with the new export.
 /// 5. Write back atomically.
@@ -1055,7 +1055,7 @@ pub fn inject_path(cli_path: &str) -> Result<String, String> {
     // Read (may not exist yet — empty string is the correct default)
     let existing = std::fs::read_to_string(&target).unwrap_or_default();
 
-    // Strip all historical COURTEOUSCODE blocks. This fixes two bugs at once:
+    // Strip all historical BLACKBOX blocks. This fixes two bugs at once:
     // 1. The old literal-contains idempotency check let different `dir`
     //    values stack up across clicks, polluting the profile.
     // 2. Users who clicked through several stale candidates accumulated

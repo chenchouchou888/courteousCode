@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# run-e2e.sh — run courteousCode E2E suites and store stable reports.
+# run-e2e.sh — run Black Box E2E suites and store stable reports.
 #
 # Usage:
 #   bash .test/scripts/run-e2e.sh [--phase all|1|2|3] [runner flags]
@@ -15,7 +15,7 @@
 set -euo pipefail
 cd "$(dirname "$0")/../.."
 
-CLI=(node scripts/courteouscode-cli.mjs)
+CLI=(node scripts/blackbox-cli.mjs)
 RUNNER=(node scripts/run-tests.mjs)
 TIMESTAMP=$(date +%Y-%m-%d_%H-%M-%S)
 REPORT_DIR=".test/runs/$TIMESTAMP-e2e"
@@ -165,24 +165,24 @@ run_suite() {
   fi
 }
 
-echo "=== courteousCode E2E Test Run — $TIMESTAMP ==="
+echo "=== Black Box E2E Test Run — $TIMESTAMP ==="
 echo "Report directory: $REPORT_DIR"
 echo ""
 echo "Checking test harness connectivity..."
 if ! "${CLI[@]}" ping > /dev/null 2>&1; then
-  echo "Cannot connect to courteousCode test socket. Start the debug app with: pnpm tauri dev"
+  echo "Cannot connect to Black Box test socket. Start the debug app with: pnpm tauri dev"
   exit 1
 fi
 echo "Connected"
 
-mkdir -p /tmp/courteouscode-test
-if [ ! -f /tmp/courteouscode-test/README.md ]; then
+mkdir -p /tmp/blackbox-test
+if [ ! -f /tmp/blackbox-test/README.md ]; then
   {
-    echo "# courteousCode test fixture"
+    echo "# Black Box test fixture"
     echo "Auto-created by .test/scripts/run-e2e.sh. Keep this directory non-empty during test runs."
-  } > /tmp/courteouscode-test/README.md
+  } > /tmp/blackbox-test/README.md
 fi
-echo "Test fixture: /tmp/courteouscode-test"
+echo "Test fixture: /tmp/blackbox-test"
 echo ""
 
 if [ "$PHASE" = "all" ] || [ "$PHASE" = "1" ]; then

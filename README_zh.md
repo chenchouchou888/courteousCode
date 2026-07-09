@@ -1,8 +1,8 @@
 <div align="center">
 
-<img src="public/app-icon.png" alt="courteousCode Logo" width="120" />
+<img src="public/app-icon.png" alt="Black Box Logo" width="120" />
 
-# courteousCode
+# Black Box
 
 Claude Code CLI 桌面客户端。
 
@@ -15,7 +15,7 @@ Claude Code CLI 桌面客户端。
 
 ## 简介
 
-courteousCode 将 [Claude Code CLI](https://docs.anthropic.com/en/docs/claude-code) 封装为原生桌面应用 — 文件浏览、会话管理、流式对话、结构化权限控制集于一窗。
+Black Box 将 [Claude Code CLI](https://docs.anthropic.com/en/docs/claude-code) 封装为原生桌面应用 — 文件浏览、会话管理、流式对话、结构化权限控制集于一窗。
 
 ## 从源码构建
 

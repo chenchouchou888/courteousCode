@@ -10,7 +10,7 @@ const messages: Record<Locale, Record<string, string>> = {
     // Common
     'common.cancel': '取消',
     'common.confirm': '确认',
-    'confirm.exit': '确定要退出 COURTEOUSCODE 吗？正在运行的会话将被终止。',
+    'confirm.exit': '确定要退出 Black Box 吗？正在运行的会话将被终止。',
 
     // Sidebar
     'sidebar.hide': '收起侧栏',
@@ -734,7 +734,7 @@ const messages: Record<Locale, Record<string, string>> = {
     // Common
     'common.cancel': 'Cancel',
     'common.confirm': 'Confirm',
-    'confirm.exit': 'Are you sure you want to quit COURTEOUSCODE? Running sessions will be terminated.',
+    'confirm.exit': 'Are you sure you want to quit Black Box? Running sessions will be terminated.',
 
     // Sidebar
     'sidebar.hide': 'Hide sidebar',

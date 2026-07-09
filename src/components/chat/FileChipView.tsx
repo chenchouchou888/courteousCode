@@ -19,7 +19,7 @@ export function FileChipView({ node }: NodeViewProps) {
       e.preventDefault();
       e.stopPropagation();
       window.dispatchEvent(
-        new CustomEvent('courteouscode:open-file', { detail: fullPath }),
+        new CustomEvent('blackbox:open-file', { detail: fullPath }),
       );
     },
     [fullPath],

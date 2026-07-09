@@ -3,7 +3,7 @@
 # sync-mirror-from-gcs.sh
 #
 # Mirror Anthropic's public Claude Code release bucket to the local filesystem.
-# Intended to run on the herear.cn server as a cron job so courteousCode's China
+# Intended to run on the herear.cn server as a cron job so Black Box's China
 # users get an up-to-date `claude` binary (2026-04 incident: mirror was 22
 # versions behind GCS → Windows users couldn't install CLI at all).
 #

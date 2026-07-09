@@ -8,7 +8,7 @@
         {
           "cmd": "new-session",
           "flags": {
-            "cwd": "/tmp/courteouscode-test"
+            "cwd": "/tmp/blackbox-test"
           }
         },
         {
@@ -76,7 +76,7 @@
         {
           "cmd": "new-session",
           "flags": {
-            "cwd": "/tmp/courteouscode-test"
+            "cwd": "/tmp/blackbox-test"
           }
         },
         {
@@ -132,7 +132,7 @@
         {
           "cmd": "new-session",
           "flags": {
-            "cwd": "/tmp/courteouscode-test"
+            "cwd": "/tmp/blackbox-test"
           }
         },
         {

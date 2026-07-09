@@ -310,8 +310,8 @@ export function InputBar() {
   // Listen for plan-execute events from PlanReviewCard and Enter shortcut
   useEffect(() => {
     const handler = () => handlePlanApprove();
-    window.addEventListener('courteouscode:plan-execute', handler);
-    return () => window.removeEventListener('courteouscode:plan-execute', handler);
+    window.addEventListener('blackbox:plan-execute', handler);
+    return () => window.removeEventListener('blackbox:plan-execute', handler);
   }, [handlePlanApprove]);
 
   // Floating approval cards — unresolved plan_review / question messages
@@ -364,8 +364,8 @@ export function InputBar() {
 
       textareaRef.current.insertFileChip({ fullPath, label: displayPath });
     };
-    window.addEventListener('courteouscode:tree-file-inline', onTreeFileInline);
-    return () => window.removeEventListener('courteouscode:tree-file-inline', onTreeFileInline);
+    window.addEventListener('blackbox:tree-file-inline', onTreeFileInline);
+    return () => window.removeEventListener('blackbox:tree-file-inline', onTreeFileInline);
   }, []);
 
   // Slash command state
@@ -402,11 +402,11 @@ export function InputBar() {
         }
       }
     };
-    window.addEventListener('courteouscode:rewind', handler);
-    return () => window.removeEventListener('courteouscode:rewind', handler);
+    window.addEventListener('blackbox:rewind', handler);
+    return () => window.removeEventListener('blackbox:rewind', handler);
   }, [canRewind, t]);
 
-  // Double-Esc rewind shortcut disabled (#36 / #71) — rewind feature is hidden in COURTEOUSCODE
+  // Double-Esc rewind shortcut disabled (#36 / #71) — rewind feature is hidden in BLACKBOX
 
   // Drag state (file drop)
   const [isDragging, setIsDragging] = useState(false);
@@ -528,7 +528,7 @@ export function InputBar() {
         return;
 
       case 'rewind':
-        window.dispatchEvent(new CustomEvent('courteouscode:rewind'));
+        window.dispatchEvent(new CustomEvent('blackbox:rewind'));
         return;
 
       // /compact is handled in the session stdin commands group below
@@ -658,7 +658,7 @@ export function InputBar() {
 
 
       // --- All CLI commands: pass through to active session via stdin ---
-      // COURTEOUSCODE is a GUI wrapper — all slash commands are handled by Claude Code CLI.
+      // BLACKBOX is a GUI wrapper — all slash commands are handled by Claude Code CLI.
       default: {
         const stdinId = getActiveTabState().sessionMeta.stdinId;
         if (stdinId && tabId) {
@@ -760,7 +760,7 @@ export function InputBar() {
         resolved: true,
         interactionState: 'resolved',
       });
-      window.dispatchEvent(new CustomEvent('courteouscode:plan-execute'));
+      window.dispatchEvent(new CustomEvent('blackbox:plan-execute'));
       return;
     }
 
@@ -1030,7 +1030,7 @@ export function InputBar() {
         const currentFp = envFingerprint();
         const sessionFp = getActiveTabState().sessionMeta.envFingerprint;
         if (currentFp !== sessionFp) {
-          console.warn('[COURTEOUSCODE] API provider config changed, killing stale session');
+          console.warn('[BLACKBOX] API provider config changed, killing stale session');
           // Use lifecycle teardown — properly unregisters stdinTab mapping
           await teardownSession(stdinId, tabId, 'switch');
           await waitForStdinCleared(tabId, stdinId);
@@ -1048,7 +1048,7 @@ export function InputBar() {
           if (spawnedModel && currentModel !== spawnedModel) {
             const oldShort = MODEL_OPTIONS.find((m) => m.id === spawnedModel)?.short ?? spawnedModel;
             const newShort = MODEL_OPTIONS.find((m) => m.id === currentModel)?.short ?? currentModel;
-            console.warn(`[COURTEOUSCODE] Model changed (${oldShort} → ${newShort}), killing stale session`);
+            console.warn(`[BLACKBOX] Model changed (${oldShort} → ${newShort}), killing stale session`);
             // Use lifecycle teardown — properly unregisters stdinTab mapping
             await teardownSession(stdinId, tabId, 'switch');
             await waitForStdinCleared(tabId, stdinId);
@@ -1066,7 +1066,7 @@ export function InputBar() {
             const catchAllHash = spawnConfigHash();
             const sessionHash = getActiveTabState().sessionMeta.spawnConfigHash;
             if (sessionHash !== undefined && catchAllHash !== sessionHash) {
-              console.warn('[COURTEOUSCODE] spawnConfigHash changed (thinking/misc), respawning');
+              console.warn('[BLACKBOX] spawnConfigHash changed (thinking/misc), respawning');
               await teardownSession(stdinId, tabId, 'switch');
               await waitForStdinCleared(tabId, stdinId);
               // Unlike provider/model switch, thinking-level-only changes do NOT
@@ -1079,7 +1079,7 @@ export function InputBar() {
                 setSessionMeta(tabId, {
                   pendingReadyMessage: { stdinId, text },
                 });
-                console.log('[COURTEOUSCODE] pre-warm process not ready yet — holding first message until system:init');
+                console.log('[BLACKBOX] pre-warm process not ready yet — holding first message until system:init');
                 return;
               }
               try {
@@ -1093,7 +1093,7 @@ export function InputBar() {
               } catch (stdinErr) {
                 // stdin write failed (broken pipe — process already exited).
                 // Drop the stale stdin route via lifecycle helpers, then spawn fresh.
-                console.warn('[COURTEOUSCODE] sendStdin failed, spawning new process:', stdinErr);
+                console.warn('[BLACKBOX] sendStdin failed, spawning new process:', stdinErr);
                 cleanupStdinRoute(stdinId);
                 setSessionMeta(tabId, {
                   stdinId: undefined,
@@ -1157,7 +1157,7 @@ export function InputBar() {
           pendingReadyMessage: undefined,
         });
 
-        console.log('[COURTEOUSCODE:session] starting session', { cwd, stdinId: preGeneratedId, mode: liveSessionMode, provider: useProviderStore.getState().activeProviderId, modelSwitch: !!didSwitchModel, resumeSessionId: existingSessionId });
+        console.log('[BLACKBOX:session] starting session', { cwd, stdinId: preGeneratedId, mode: liveSessionMode, provider: useProviderStore.getState().activeProviderId, modelSwitch: !!didSwitchModel, resumeSessionId: existingSessionId });
 
         // Use lifecycle module for unified spawn
         const spawnResult = await spawnSession({
@@ -1187,7 +1187,7 @@ export function InputBar() {
           onStderr: (line: string) => handleStderrLine(line, preGeneratedId),
         });
 
-        console.log('[COURTEOUSCODE:session] started successfully', {
+        console.log('[BLACKBOX:session] started successfully', {
           stdinId: spawnResult.sessionInfo.stdin_id,
           cliSessionId: spawnResult.sessionInfo.cli_session_id,
           pid: spawnResult.sessionInfo.pid,
@@ -1248,11 +1248,11 @@ export function InputBar() {
   useEffect(() => {
     if (!import.meta.env.DEV) return;
     const testWindow = window as any;
-    testWindow.__courteouscode_editor = textareaRef.current?.getEditor() || null;
-    testWindow.__courteouscode_send = () => handleSubmitRef.current();
+    testWindow.__blackbox_editor = textareaRef.current?.getEditor() || null;
+    testWindow.__blackbox_send = () => handleSubmitRef.current();
     return () => {
-      if (testWindow.__courteouscode_send) delete testWindow.__courteouscode_send;
-      if (testWindow.__courteouscode_editor) delete testWindow.__courteouscode_editor;
+      if (testWindow.__blackbox_send) delete testWindow.__blackbox_send;
+      if (testWindow.__blackbox_editor) delete testWindow.__blackbox_editor;
     };
   });
 
@@ -1281,7 +1281,7 @@ export function InputBar() {
 
     // Strip ANSI escape codes so regex matching works on raw text
     const clean = stripAnsi(line).trim();
-    console.log('[COURTEOUSCODE:stderr]', clean);
+    console.log('[BLACKBOX:stderr]', clean);
 
     // Track last non-trivial stderr line for error reporting on unexpected exit
     if (clean && !/^\s*$/.test(clean)) {
@@ -1323,7 +1323,7 @@ export function InputBar() {
 
     // Permission prompts are now handled via SDK control protocol (P1-03/P1-04).
     // The Rust backend intercepts control_request messages from stdout and emits
-    // them as courteouscode_permission_request in the stream channel, handled by
+    // them as blackbox_permission_request in the stream channel, handled by
     // the stream processor. Stderr is now purely for diagnostic logging.
   }, []);
 
@@ -1346,7 +1346,7 @@ export function InputBar() {
     // Drain any events that were queued while handler was unavailable
     const queue: any[] = (window as any).__claudeStreamQueue;
     if (queue && queue.length > 0) {
-      console.warn(`[COURTEOUSCODE] draining ${queue.length} queued stream events on handler mount`);
+      console.warn(`[BLACKBOX] draining ${queue.length} queued stream events on handler mount`);
       const pending = queue.splice(0);
       for (const msg of pending) handleStreamMessage(msg);
     }

@@ -14,9 +14,9 @@ export function setOrphanDrainCallback(cb: (stdinId: string, tabId: string) => v
 
 // Persist custom session names in localStorage as fast cache,
 // and sync to disk via Tauri backend for durability.
-const CUSTOM_PREVIEWS_KEY = 'courteouscode_custom_previews';
-const LAST_SESSION_KEY = 'courteouscode_last_session';
-const STDIN_TO_TAB_KEY = 'courteouscode_stdinToTab';
+const CUSTOM_PREVIEWS_KEY = 'blackbox_custom_previews';
+const LAST_SESSION_KEY = 'blackbox_last_session';
+const STDIN_TO_TAB_KEY = 'blackbox_stdinToTab';
 
 function loadCustomPreviewsSync(): Record<string, string> {
   try {

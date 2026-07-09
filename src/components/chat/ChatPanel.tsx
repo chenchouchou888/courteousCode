@@ -371,8 +371,8 @@ export function ChatPanel() {
       useSettingsStore.getState().setSecondaryTab('files');
       useFileStore.getState().selectFile(filePath);
     };
-    window.addEventListener('courteouscode:open-file', onOpenFile);
-    return () => window.removeEventListener('courteouscode:open-file', onOpenFile);
+    window.addEventListener('blackbox:open-file', onOpenFile);
+    return () => window.removeEventListener('blackbox:open-file', onOpenFile);
   }, []);
 
   // --- Tool grouping: group 3+ consecutive tool_use messages ---
@@ -871,7 +871,7 @@ async function startDraftSession(folderPath: string) {
         }
       },
       onStderr: (line: string) => {
-        console.warn('[COURTEOUSCODE] pre-warm stderr:', line);
+        console.warn('[BLACKBOX] pre-warm stderr:', line);
       },
       setRunning: false,
     });
@@ -943,8 +943,8 @@ function WelcomeScreen() {
           className="text-6xl font-bold tracking-tight mb-4"
           style={{ letterSpacing: '-0.04em' }}
         >
-          <span className="text-text-primary">courteous</span>
-          <span className="text-accent">Code</span>
+          <span className="text-text-primary">Black </span>
+          <span className="text-accent">Box</span>
         </h1>
 
         <p className="text-text-muted text-[15px] mb-12 max-w-md leading-relaxed">
