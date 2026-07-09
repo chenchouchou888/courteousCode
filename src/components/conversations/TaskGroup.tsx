@@ -203,7 +203,7 @@ export function TaskGroup({
       {isExpanded && sessions.length === 0 && (
         <div className="px-3 py-2 text-[11px] text-text-tertiary/70 select-none
           border-t border-border-subtle/70">
-          空组 · 右键已有会话选「加入任务组」
+          空组 · 右键已有会话选「加入组」
         </div>
       )}
     </div>

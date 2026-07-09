@@ -18,7 +18,6 @@ import { useProviderStore } from '../../stores/providerStore';
 import { spawnSession } from '../../lib/sessionLifecycle';
 import { MarkdownRenderer } from '../shared/MarkdownRenderer';
 import { SetupWizard } from '../setup/SetupWizard';
-import { AiAvatar } from '../shared/AiAvatar';
 import { UserAvatar } from '../shared/UserAvatar';
 import { useFindInPage } from '../../hooks/useFindInPage';
 import { FindBar } from './FindBar';
@@ -921,60 +920,82 @@ function WelcomeScreen() {
   }
 
   return (
-    <div className="flex flex-col items-center justify-center h-full text-center">
-      {/* App icon — customizable AI avatar */}
-      <AiAvatar size="w-20 h-20" rounded="rounded-3xl" className="mb-6 shadow-glow" />
-      <h2 className="text-xl font-semibold text-accent mb-2">
-        {t('chat.welcome')}
-      </h2>
-      <p className="text-sm text-text-muted max-w-sm leading-relaxed mb-6">
-        {t('welcome.subtitle')}
-      </p>
+    <div className="relative flex flex-col items-center justify-center h-full text-center overflow-hidden select-none">
+      {/* Dot grid background */}
+      <div
+        className="absolute inset-0 opacity-[0.025]"
+        style={{
+          backgroundImage: 'radial-gradient(circle, var(--color-text-primary) 1px, transparent 1px)',
+          backgroundSize: '28px 28px',
+        }}
+      />
+      {/* Top accent glow */}
+      <div
+        className="absolute -top-32 left-1/2 -translate-x-1/2 w-[700px] h-[500px]"
+        style={{
+          background: 'radial-gradient(ellipse 50% 60% at 50% 0%, rgba(59,111,224,0.12), transparent)',
+        }}
+      />
 
-      {/* Primary action: new chat with folder picker */}
-      <button
-        onClick={handlePickFolder}
-        className="px-6 py-3 rounded-[20px] text-sm font-medium
-          bg-accent hover:bg-accent-hover text-text-inverse
-          hover:shadow-glow transition-smooth
-          flex items-center gap-2 mb-8"
-      >
-        <svg width="16" height="16" viewBox="0 0 16 16" fill="none"
-          stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-          <path d="M2 4h4l2 2h6v7H2V4z" />
-        </svg>
-        {t('welcome.newChat')}
-      </button>
+      <div className="relative z-10 flex flex-col items-center -mt-16">
+        {/* Wordmark */}
+        <h1
+          className="text-6xl font-bold tracking-tight mb-4"
+          style={{ letterSpacing: '-0.04em' }}
+        >
+          <span className="text-text-primary">courteous</span>
+          <span className="text-accent">Code</span>
+        </h1>
 
-      {/* Recent projects */}
-      {recentProjects.length > 0 && (
-        <div className="w-full max-w-sm">
-          <div className="text-[11px] font-medium text-text-tertiary uppercase
-            tracking-wider mb-3">
-            {t('welcome.recentProjects')}
+        <p className="text-text-muted text-[15px] mb-12 max-w-md leading-relaxed">
+          {t('welcome.subtitle')}
+        </p>
+
+        {/* CTA button */}
+        <button
+          onClick={handlePickFolder}
+          className="group relative inline-flex items-center gap-2.5
+            px-6 py-2.5 rounded-xl text-[14px] font-medium
+            bg-accent/10 text-accent
+            border border-accent/20 hover:border-accent/40
+            hover:bg-accent/15 transition-smooth"
+        >
+          <span className="w-5 h-5 rounded-md bg-accent/15 flex items-center justify-center
+            group-hover:bg-accent/25 transition-smooth">
+            <svg width="12" height="12" viewBox="0 0 16 16" fill="none"
+              stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+              <path d="M8 3v10M3 8h10" />
+            </svg>
+          </span>
+          {t('welcome.newChat')}
+        </button>
+
+        {/* Recent projects */}
+        {recentProjects.length > 0 && (
+          <div className="mt-16">
+            <div className="text-[10px] font-medium text-text-tertiary
+              uppercase tracking-[0.18em] mb-4">
+              {t('welcome.recentProjects')}
+            </div>
+            <div className="flex flex-wrap justify-center gap-1.5 max-w-lg">
+              {recentProjects.slice(0, 8).map((project) => (
+                <button
+                  key={project.path}
+                  onClick={() => startDraftSession(project.path)}
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5
+                    rounded-lg text-[13px] text-text-secondary
+                    hover:text-text-primary hover:bg-bg-tertiary
+                    transition-smooth"
+                  title={project.shortPath}
+                >
+                  <span className="w-1.5 h-1.5 rounded-full bg-accent/40 flex-shrink-0" />
+                  {project.name}
+                </button>
+              ))}
+            </div>
           </div>
-          <div className="flex flex-wrap justify-center gap-2">
-            {recentProjects.slice(0, 6).map((project) => (
-              <button
-                key={project.path}
-                onClick={() => startDraftSession(project.path)}
-                className="inline-flex items-center gap-1.5 px-3 py-1.5
-                  rounded-md border border-border-subtle text-xs
-                  text-text-muted hover:border-accent hover:text-accent
-                  hover:bg-accent/5 transition-smooth"
-                title={project.shortPath}
-              >
-                <svg width="11" height="11" viewBox="0 0 16 16" fill="none"
-                  stroke="currentColor" strokeWidth="1.5"
-                  className="flex-shrink-0 text-text-tertiary">
-                  <path d="M2 4h4l2 2h6v7H2V4z" />
-                </svg>
-                {project.name}
-              </button>
-            ))}
-          </div>
-        </div>
-      )}
+        )}
+      </div>
     </div>
   );
 }
@@ -984,20 +1005,28 @@ function EmptyReadyState() {
   const t = useT();
   const workingDirectory = useSettingsStore((s) => s.workingDirectory);
   return (
-    <div className="flex flex-col items-center justify-center h-full text-center">
-      {/* App icon — customizable AI avatar */}
-      <AiAvatar size="w-16 h-16" rounded="rounded-2xl" className="mb-5 shadow-glow" />
-      <h2 className="text-lg font-semibold text-accent mb-1">
-        {t('chat.welcome')}
-      </h2>
-      <p className="text-sm text-text-muted max-w-sm leading-relaxed">
-        {t('chat.welcomeWithProject')}
-      </p>
-      {workingDirectory && (
-        <p className="text-xs text-text-tertiary mt-2 truncate max-w-xs">
-          {workingDirectory}
+    <div className="relative flex flex-col items-center justify-center h-full text-center overflow-hidden select-none">
+      <div
+        className="absolute inset-0 opacity-[0.025]"
+        style={{
+          backgroundImage: 'radial-gradient(circle, var(--color-text-primary) 1px, transparent 1px)',
+          backgroundSize: '28px 28px',
+        }}
+      />
+      <div className="relative z-10 flex flex-col items-center -mt-8">
+        <h2 className="text-2xl font-semibold text-text-primary mb-2 tracking-tight">
+          {t('chat.welcome')}
+        </h2>
+        <p className="text-text-muted text-sm max-w-sm leading-relaxed">
+          {t('chat.welcomeWithProject')}
         </p>
-      )}
+        {workingDirectory && (
+          <p className="text-xs text-text-tertiary mt-3 truncate max-w-xs
+            bg-bg-secondary px-3 py-1 rounded-md">
+            {workingDirectory}
+          </p>
+        )}
+      </div>
     </div>
   );
 }

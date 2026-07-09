@@ -565,14 +565,14 @@ export function ConversationList() {
   // --- Session group handlers ---
   // Create an empty group in a workspace (workspace header → "create group").
   const handleCreateGroup = useCallback((projectKey: string) => {
-    const id = useGroupStore.getState().createGroup(projectKey, '新任务组');
+    const id = useGroupStore.getState().createGroup(projectKey, '新分组');
     setRenamingGroupId(id); // jump straight into inline rename
   }, []);
 
   // Create a group and drop this session into it (session → "create group").
   const handleCreateGroupWithSession = useCallback((session: SessionListItem) => {
     const ws = normalizeProjectKey(session.project || session.projectDir);
-    const id = useGroupStore.getState().createGroup(ws, '新任务组');
+    const id = useGroupStore.getState().createGroup(ws, '新分组');
     useGroupStore.getState().addToGroup(session.id, id);
     setRenamingGroupId(id);
   }, []);
