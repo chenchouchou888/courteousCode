@@ -155,8 +155,8 @@ export function SessionGroup({
       <div
         onClick={() => onToggleCollapse(projectKey)}
         onContextMenu={(e) => onProjectContextMenu(e, projectKey)}
-        className="w-full flex items-center gap-2 px-3 py-1.5 cursor-pointer
-          hover:bg-bg-secondary rounded-md transition-smooth group"
+        className="w-full flex items-center gap-2 px-2.5 py-1 cursor-pointer
+          hover:bg-bg-secondary rounded-sm transition-smooth group"
         role="button"
         tabIndex={0}
         onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') onToggleCollapse(projectKey); }}
@@ -167,11 +167,11 @@ export function SessionGroup({
             ${isExpanded ? 'rotate-90' : ''}`}>
           <path d="M3 1l4 4-4 4" />
         </svg>
-        <span className="text-[13px] font-extrabold text-text-primary
+        <span className="text-[12px] font-semibold text-text-primary
           truncate flex-1 text-left min-w-0">
           {label}
         </span>
-        <span className="text-[11px] text-text-tertiary flex-shrink-0">
+        <span className="text-[10px] text-text-tertiary flex-shrink-0">
           {sessions.length} {t('conv.sessions')}
         </span>
         <button
@@ -189,7 +189,7 @@ export function SessionGroup({
 
       {/* Project path */}
       {isExpanded && projectKey !== label && (
-        <div className="px-7 pb-0.5">
+        <div className="px-6 pb-0.5">
           <span className="text-[10px] text-text-tertiary truncate block">
             {projectPath}
           </span>
@@ -271,7 +271,7 @@ export function SessionGroup({
           )}
           {dateGroups.map(({ category, label: dateLabel, items }) => (
             <div key={category}>
-              <div className="text-[11px] text-text-tertiary font-medium px-7 py-1 mt-1
+              <div className="text-[10px] text-text-tertiary/70 font-medium px-6 py-0.5 mt-0.5
                 select-none">
                 {dateLabel}
               </div>

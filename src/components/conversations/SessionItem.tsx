@@ -160,12 +160,12 @@ export function SessionItem({
         startRename();
       }}
       onContextMenu={(e) => onContextMenu(e, session)}
-      className={`relative w-full text-left ${inset === 'group' ? 'pl-5' : 'pl-7'} pr-3 py-1.5 rounded-lg
+      className={`relative w-full text-left ${inset === 'group' ? 'pl-4' : 'pl-6'} pr-2.5 py-[5px] rounded-md
         transition-smooth group hover:bg-bg-secondary
         ${isArchived ? 'opacity-50' : ''}`}
     >
       {isSelected && (
-        <span className="absolute left-1.5 top-1/2 -translate-y-1/2 w-1 h-4 rounded-[2px]
+        <span className="absolute left-1 top-1/2 -translate-y-1/2 w-[2px] h-3.5 rounded-full
           bg-accent" />
       )}
       <div className="flex items-center gap-2">
@@ -214,13 +214,12 @@ export function SessionItem({
           {formatRelativeTime(session.modifiedAt)}
         </span>
         {isRunning && (
-          <span className="flex-shrink-0 w-2 h-2 rounded-full bg-success
-            shadow-[0_0_6px_var(--color-accent-glow)]
+          <span className="flex-shrink-0 w-1.5 h-1.5 rounded-full bg-success
             animate-pulse-soft" />
         )}
       </div>
       {contentSnippet && (
-        <div className="flex gap-1 mt-0.5 text-[10px] text-text-muted leading-relaxed">
+        <div className="flex gap-1 mt-px text-[10px] text-text-muted leading-relaxed">
           <svg width="8" height="8" viewBox="0 0 16 16" fill="none"
             stroke="currentColor" strokeWidth="2" strokeLinecap="round"
             className="flex-shrink-0 mt-[3px] text-accent/40">

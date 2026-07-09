@@ -96,7 +96,7 @@ export function TaskGroup({
     <div
       ref={setNodeRef}
       style={style}
-      className={`mx-1 mb-2 rounded-lg bg-bg-card border border-border-subtle
+      className={`mx-1 mb-1.5 rounded-md bg-bg-card border border-border-subtle/60
         overflow-hidden
         ${isDragging ? 'opacity-80 relative z-10' : ''}`}
     >
@@ -104,8 +104,8 @@ export function TaskGroup({
       <div
         onClick={() => !isRenaming && onToggleCollapse(group.id)}
         onContextMenu={(e) => onGroupContextMenu(e, group.id)}
-        className="w-full flex items-center gap-2 pl-2 pr-2 py-2 cursor-pointer
-          bg-bg-secondary/30 hover:bg-bg-secondary/50 transition-smooth group"
+        className="w-full flex items-center gap-2 pl-2 pr-2 py-1.5 cursor-pointer
+          hover:bg-bg-secondary/40 transition-smooth group"
         role="button"
         tabIndex={0}
       >
@@ -142,12 +142,12 @@ export function TaskGroup({
               if (e.key === 'Enter') commit();
               else if (e.key === 'Escape') onRenameCancel();
             }}
-            className="flex-1 min-w-0 bg-bg-tertiary text-[13px] font-semibold
+            className="flex-1 min-w-0 bg-bg-tertiary text-[12px] font-medium
               text-text-primary px-1.5 py-0.5 rounded-md outline-none
               border border-border-focus"
           />
         ) : (
-          <span className="text-[13px] font-semibold text-text-primary
+          <span className="text-[12px] font-medium text-text-primary
             truncate flex-1 text-left min-w-0">
             {group.label}
           </span>
@@ -175,7 +175,7 @@ export function TaskGroup({
 
       {/* Members */}
       {isExpanded && sessions.length > 0 && (
-        <div className="px-1.5 pb-1.5 pt-1.5 border-t border-border-subtle/70">
+        <div className="px-1 pb-1 pt-1 border-t border-border-subtle/70">
           {sessions.map((session) => (
             <SessionItem
               key={session.id}

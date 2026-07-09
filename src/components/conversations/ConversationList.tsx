@@ -690,9 +690,9 @@ export function ConversationList() {
       {/* Search + Filters */}
       <div className="px-1 mb-2">
         <div className="flex items-center gap-2">
-          <div className="flex-1 min-w-0 flex items-center gap-2 px-3 py-2 rounded-lg
-            bg-bg-secondary border border-border-subtle
-            focus-within:border-border-focus transition-smooth">
+          <div className="flex-1 min-w-0 flex items-center gap-2 px-2.5 py-1.5 rounded-md
+            bg-bg-tertiary
+            focus-within:ring-1 focus-within:ring-inset focus-within:ring-border-focus">
             <svg width="14" height="14" viewBox="0 0 16 16" fill="none"
               stroke="currentColor" strokeWidth="1.5"
               className="text-text-tertiary flex-shrink-0">
@@ -820,7 +820,7 @@ export function ConversationList() {
 
       {/* Empty state */}
       {!isLoading && filtered.length === 0 && contentOnlyMatches.length === 0 && !isContentSearching && (
-        <div className="text-center py-8 px-4">
+        <div className="text-center py-6 px-4">
           <div className="text-text-tertiary text-xs">
             {searchQuery ? t('conv.noMatch') : t('conv.noConv')}
           </div>
@@ -831,11 +831,12 @@ export function ConversationList() {
       <button
         onClick={handleRefresh}
         disabled={refreshing}
-        className="mx-2 mt-2 py-1.5 rounded-md text-[12px]
+        className="mx-1 mt-1 py-1 rounded-md
           text-text-muted hover:text-text-primary
           hover:bg-bg-secondary transition-smooth
-          flex items-center justify-center gap-1.5
+          flex items-center justify-center
           disabled:opacity-50"
+        title={t('conv.refresh')}
       >
         <svg
           width="12" height="12" viewBox="0 0 24 24"
@@ -847,13 +848,12 @@ export function ConversationList() {
           <polyline points="1 20 1 14 7 14" />
           <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15" />
         </svg>
-        {t('conv.refresh')}
       </button>
 
       {/* Multi-select floating toolbar — sticky at bottom of scroll container */}
       {multiSelect && (
-        <div className="sticky bottom-0 mx-1 mt-2 p-2 rounded-lg
-          bg-bg-card/95 backdrop-blur-sm border border-border-subtle shadow-lg
+        <div className="sticky bottom-0 mx-1 mt-2 p-2 rounded-md
+          bg-bg-card/95 border border-border-subtle shadow-lg
           flex items-center gap-2 animate-fade-in z-10">
           <span className="text-xs text-text-muted flex-1">
             {t('conv.selected').replace('{n}', String(selectedIds.size))}
