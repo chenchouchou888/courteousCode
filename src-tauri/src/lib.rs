@@ -4171,6 +4171,13 @@ async fn write_file_content(
 }
 
 #[tauri::command]
+fn get_home_dir() -> Result<String, String> {
+    dirs::home_dir()
+        .map(|p| p.to_string_lossy().to_string())
+        .ok_or_else(|| "Cannot determine home directory".to_string())
+}
+
+#[tauri::command]
 async fn copy_file(
     path_access: State<'_, PathAccessManager>,
     src: String,
@@ -8221,6 +8228,7 @@ pub fn run() {
             read_file_tree,
             read_file_content,
             write_file_content,
+            get_home_dir,
             copy_file,
             rename_file,
             delete_file,
