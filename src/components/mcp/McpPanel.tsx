@@ -3,6 +3,35 @@ import { useMcpStore } from '../../stores/mcpStore';
 import type { McpServer, McpServerConfig } from '../../stores/mcpStore';
 import { useT } from '../../lib/i18n';
 
+interface McpPreset {
+  name: string;
+  description: string;
+  config: McpServerConfig;
+}
+
+const MCP_PRESETS: McpPreset[] = [
+  {
+    name: 'playwright',
+    description: '控制浏览器：打开网页、点击、截图、填写表单',
+    config: { command: 'npx', args: ['-y', '@playwright/mcp@latest'], env: {}, type: 'stdio' },
+  },
+  {
+    name: 'filesystem',
+    description: '文件系统读写：读取、创建、编辑文件和目录',
+    config: { command: 'npx', args: ['-y', '@modelcontextprotocol/server-filesystem', '/tmp'], env: {}, type: 'stdio' },
+  },
+  {
+    name: 'github',
+    description: 'GitHub 操作：Issues、PR、仓库管理',
+    config: { command: 'npx', args: ['-y', '@modelcontextprotocol/server-github'], env: { GITHUB_PERSONAL_ACCESS_TOKEN: '' }, type: 'stdio' },
+  },
+  {
+    name: 'fetch',
+    description: '网页抓取：获取网页内容并转为 Markdown',
+    config: { command: 'npx', args: ['-y', '@modelcontextprotocol/server-fetch'], env: {}, type: 'stdio' },
+  },
+];
+
 export function McpPanel() {
   const t = useT();
   const servers = useMcpStore((s) => s.servers);
@@ -78,11 +107,15 @@ export function McpPanel() {
       <div className="flex-1 overflow-y-auto py-1">
         {/* Add form at top */}
         {isAdding && (
-          <McpServerForm
-            onSave={async (name, config) => {
+          <McpAddSection
+            onQuickAdd={async (preset) => {
+              await addServer(preset.name, preset.config);
+            }}
+            onManualSave={async (name, config) => {
               await addServer(name, config);
             }}
             onCancel={() => setAdding(false)}
+            existingNames={servers.map((s) => s.name)}
             t={t}
           />
         )}
@@ -131,6 +164,93 @@ export function McpPanel() {
           ))
         )}
       </div>
+    </div>
+  );
+}
+
+/* Quick-add section with presets + manual form */
+function McpAddSection({
+  onQuickAdd,
+  onManualSave,
+  onCancel,
+  existingNames,
+  t,
+}: {
+  onQuickAdd: (preset: McpPreset) => Promise<void>;
+  onManualSave: (name: string, config: McpServerConfig) => Promise<void>;
+  onCancel: () => void;
+  existingNames: string[];
+  t: (key: string) => string;
+}) {
+  const [showManual, setShowManual] = useState(false);
+  const availablePresets = MCP_PRESETS.filter((p) => !existingNames.includes(p.name));
+
+  return (
+    <div className="mx-1.5 mb-2 space-y-2">
+      {/* Presets */}
+      {availablePresets.length > 0 && !showManual && (
+        <div className="space-y-1">
+          <div className="flex items-center justify-between px-1">
+            <span className="text-[10px] text-text-tertiary font-medium uppercase tracking-wider">
+              快捷添加
+            </span>
+          </div>
+          {availablePresets.map((preset) => (
+            <button
+              key={preset.name}
+              onClick={() => onQuickAdd(preset)}
+              className="w-full px-2.5 py-2 rounded-lg border border-border-subtle
+                hover:border-accent/40 hover:bg-accent/5 transition-smooth
+                text-left group"
+            >
+              <div className="flex items-center gap-2">
+                <span className="text-[12px] font-medium text-text-primary">
+                  {preset.name}
+                </span>
+                <span className="text-[9px] px-1.5 py-0.5 rounded-md
+                  bg-green-500/15 text-green-400 font-medium opacity-0
+                  group-hover:opacity-100 transition-smooth">
+                  + 添加
+                </span>
+              </div>
+              <p className="text-[11px] text-text-muted mt-0.5">
+                {preset.description}
+              </p>
+            </button>
+          ))}
+        </div>
+      )}
+
+      {/* Toggle to manual */}
+      {!showManual && (
+        <button
+          onClick={() => setShowManual(true)}
+          className="w-full px-2.5 py-1.5 text-[11px] text-text-tertiary
+            hover:text-accent transition-smooth text-center"
+        >
+          手动配置 →
+        </button>
+      )}
+
+      {/* Manual form */}
+      {showManual && (
+        <McpServerForm
+          onSave={onManualSave}
+          onCancel={onCancel}
+          t={t}
+        />
+      )}
+
+      {/* Cancel when only presets are shown */}
+      {!showManual && (
+        <button
+          onClick={onCancel}
+          className="w-full px-2 py-1 text-[11px] text-text-muted
+            hover:text-text-primary transition-smooth text-center"
+        >
+          {t('mcp.cancel')}
+        </button>
+      )}
     </div>
   );
 }

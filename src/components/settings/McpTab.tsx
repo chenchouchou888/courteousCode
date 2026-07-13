@@ -3,6 +3,35 @@ import { useMcpStore } from '../../stores/mcpStore';
 import type { McpServer, McpServerConfig } from '../../stores/mcpStore';
 import { useT } from '../../lib/i18n';
 
+interface McpPreset {
+  name: string;
+  description: string;
+  config: McpServerConfig;
+}
+
+const MCP_PRESETS: McpPreset[] = [
+  {
+    name: 'playwright',
+    description: '控制浏览器：打开网页、点击、截图、填写表单',
+    config: { command: 'npx', args: ['-y', '@playwright/mcp@latest'], env: {}, type: 'stdio' },
+  },
+  {
+    name: 'filesystem',
+    description: '文件系统读写：读取、创建、编辑文件和目录',
+    config: { command: 'npx', args: ['-y', '@modelcontextprotocol/server-filesystem', '/tmp'], env: {}, type: 'stdio' },
+  },
+  {
+    name: 'github',
+    description: 'GitHub 操作：Issues、PR、仓库管理',
+    config: { command: 'npx', args: ['-y', '@modelcontextprotocol/server-github'], env: { GITHUB_PERSONAL_ACCESS_TOKEN: '' }, type: 'stdio' },
+  },
+  {
+    name: 'fetch',
+    description: '网页抓取：获取网页内容并转为 Markdown',
+    config: { command: 'npx', args: ['-y', '@modelcontextprotocol/server-fetch'], env: {}, type: 'stdio' },
+  },
+];
+
 export function McpTab() {
   const t = useT();
   const servers = useMcpStore((s) => s.servers);
@@ -20,11 +49,7 @@ export function McpTab() {
     fetchServers();
   }, [fetchServers]);
 
-  const handleDelete = useCallback(async (name: string) => {
-    if (confirm(t('mcp.confirmDelete'))) {
-      await deleteServer(name);
-    }
-  }, [deleteServer, t]);
+  const [confirmingDelete, setConfirmingDelete] = useState<string | null>(null);
 
   return (
     <div className="space-y-4">
@@ -65,11 +90,13 @@ export function McpTab() {
 
       {/* Content — always expanded */}
       <div className="space-y-2">
-        {/* Add form */}
+        {/* Add form with presets */}
         {isAdding && (
-          <McpServerForm
-            onSave={async (name, config) => { await addServer(name, config); }}
+          <McpAddSection
+            onQuickAdd={async (preset) => { await addServer(preset.name, preset.config); }}
+            onManualSave={async (name, config) => { await addServer(name, config); }}
             onCancel={() => setAdding(false)}
+            existingNames={servers.map((s) => s.name)}
             t={t}
           />
         )}
@@ -83,7 +110,7 @@ export function McpTab() {
           <p className="text-[13px] text-text-tertiary text-center py-6">
             {t('mcp.noServers')}
           </p>
-        ) : (
+        ) : !isAdding ? (
           servers.map((server) => (
             editingServer === server.name ? (
               <McpServerForm
@@ -100,13 +127,91 @@ export function McpTab() {
                 key={server.name}
                 server={server}
                 onEdit={() => setEditing(server.name)}
-                onDelete={() => handleDelete(server.name)}
+                onDelete={() => setConfirmingDelete(server.name)}
+                isConfirmingDelete={confirmingDelete === server.name}
+                onConfirmDelete={async () => { await deleteServer(server.name); setConfirmingDelete(null); }}
+                onCancelDelete={() => setConfirmingDelete(null)}
                 t={t}
               />
             )
           ))
-        )}
+        ) : null}
       </div>
+    </div>
+  );
+}
+
+/* Quick-add section with presets */
+function McpAddSection({
+  onQuickAdd,
+  onManualSave,
+  onCancel,
+  existingNames,
+  t,
+}: {
+  onQuickAdd: (preset: McpPreset) => Promise<void>;
+  onManualSave: (name: string, config: McpServerConfig) => Promise<void>;
+  onCancel: () => void;
+  existingNames: string[];
+  t: (key: string) => string;
+}) {
+  const [showManual, setShowManual] = useState(false);
+  const availablePresets = MCP_PRESETS.filter((p) => !existingNames.includes(p.name));
+
+  return (
+    <div className="space-y-2">
+      {/* Presets */}
+      {availablePresets.length > 0 && !showManual && (
+        <div className="space-y-1.5">
+          <span className="text-xs text-text-muted px-1">快捷添加</span>
+          {availablePresets.map((preset) => (
+            <button
+              key={preset.name}
+              onClick={() => onQuickAdd(preset)}
+              className="w-full px-4 py-2.5 rounded-md border border-border-subtle
+                hover:border-accent/40 hover:bg-accent/5 transition-smooth
+                text-left group"
+            >
+              <div className="flex items-center gap-2">
+                <span className="text-[13px] font-medium text-text-primary">
+                  {preset.name}
+                </span>
+                <span className="text-[10px] px-1.5 py-0.5 rounded
+                  bg-green-500/15 text-green-400 font-medium opacity-0
+                  group-hover:opacity-100 transition-smooth">
+                  + 添加
+                </span>
+              </div>
+              <p className="text-xs text-text-muted mt-0.5">
+                {preset.description}
+              </p>
+            </button>
+          ))}
+        </div>
+      )}
+
+      {!showManual ? (
+        <div className="flex items-center justify-between pt-1">
+          <button
+            onClick={() => setShowManual(true)}
+            className="text-xs text-text-tertiary hover:text-accent transition-smooth"
+          >
+            手动配置 →
+          </button>
+          <button
+            onClick={onCancel}
+            className="text-xs text-text-muted hover:text-text-primary transition-smooth"
+          >
+            {t('mcp.cancel')}
+          </button>
+        </div>
+      ) : (
+        <McpServerForm
+          onSave={onManualSave}
+          onCancel={onCancel}
+          t={t}
+        />
+      )}
     </div>
   );
 }
@@ -116,15 +221,46 @@ function McpServerCardCompact({
   server,
   onEdit,
   onDelete,
+  isConfirmingDelete,
+  onConfirmDelete,
+  onCancelDelete,
   t,
 }: {
   server: McpServer;
   onEdit: () => void;
   onDelete: () => void;
+  isConfirmingDelete: boolean;
+  onConfirmDelete: () => void;
+  onCancelDelete: () => void;
   t: (key: string) => string;
 }) {
   const envCount = Object.keys(server.config.env).length;
   const cmdDisplay = [server.config.command, ...server.config.args].join(' ');
+
+  if (isConfirmingDelete) {
+    return (
+      <div className="px-4 py-3 rounded-md border border-red-500/40 bg-red-500/5">
+        <p className="text-[13px] text-text-primary mb-2">
+          确定删除 <span className="font-medium">{server.name}</span> ？
+        </p>
+        <div className="flex gap-2">
+          <button
+            onClick={onConfirmDelete}
+            className="px-3 py-1 text-xs font-medium bg-red-500 text-white rounded-md
+              hover:bg-red-600 transition-smooth"
+          >
+            删除
+          </button>
+          <button
+            onClick={onCancelDelete}
+            className="px-3 py-1 text-xs text-text-muted hover:text-text-primary transition-smooth"
+          >
+            取消
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="px-4 py-3 rounded-md transition-smooth group border
