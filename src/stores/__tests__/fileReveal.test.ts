@@ -1,5 +1,15 @@
 import { describe, it, expect } from 'vitest';
-import { classifyPathToken, computeRevealExpansions, findNodeByPath, normalizePath, reconcilePathToRoot, resolvePathToken } from '../fileReveal';
+import {
+  classifyPathToken,
+  computeRevealExpansions,
+  findNodeByPath,
+  normalizeFileReferencePath,
+  normalizePath,
+  parseFileReference,
+  reconcilePathToRoot,
+  resolvePathToken,
+  slugifyHeading,
+} from '../fileReveal';
 import type { FileNode } from '../../lib/tauri-bridge';
 
 describe('normalizePath', () => {
@@ -115,8 +125,8 @@ describe('classifyPathToken（判断反引号内是不是路径）', () => {
   it('Math.PI 不是已知扩展名 → null', () => {
     expect(classifyPathToken('Math.PI')).toBe(null);
   });
-  it('含空格的全路径 → null（避免误判句子/全路径）', () => {
-    expect(classifyPathToken('/Users/x/Mobile Documents/a/6.7看板.html')).toBe(null);
+  it('含空格的全路径 → file', () => {
+    expect(classifyPathToken('/Users/x/Mobile Documents/a/6.7看板.html')).toBe('file');
   });
   it('单字符 → null', () => {
     expect(classifyPathToken('a')).toBe(null);
@@ -139,6 +149,88 @@ describe('classifyPathToken（判断反引号内是不是路径）', () => {
   });
   it('绝对路径 + 无扩展名 → file', () => {
     expect(classifyPathToken('/usr/local/bin/claude')).toBe('file');
+  });
+});
+
+describe('parseFileReference（统一解析聊天与 Markdown 本地引用）', () => {
+  const base = '/Users/example/Workspace/Assistant/Projects/AgentApp';
+
+  it('支持中文、空格和反引号内常见的相对路径', () => {
+    expect(parseFileReference('设计 文档/阶段 一.md', { basePath: base })).toMatchObject({
+      path: `${base}/设计 文档/阶段 一.md`,
+      kind: 'file',
+    });
+  });
+
+  it('支持 ~、:line 和 :column', () => {
+    expect(parseFileReference('~/Workspace/Assistant/说明.md:12:4', { basePath: base })).toMatchObject({
+      path: '/Users/example/Workspace/Assistant/说明.md',
+      line: 12,
+      column: 4,
+    });
+  });
+
+  it('支持相对路径、dot segments 和 #Lx-Ly', () => {
+    expect(parseFileReference('../docs/指南.md#L8-L13', { basePath: base })).toMatchObject({
+      path: '/Users/example/Workspace/Assistant/Projects/docs/指南.md',
+      line: 8,
+      endLine: 13,
+    });
+  });
+
+  it('支持 Markdown heading anchor', () => {
+    expect(parseFileReference('README.md#安装说明', { basePath: base })).toMatchObject({
+      path: `${base}/README.md`,
+      anchor: '安装说明',
+    });
+  });
+
+  it('fragment-only 引用定位当前预览文件', () => {
+    expect(parseFileReference('#安装说明', {
+      basePath: base,
+      sourcePath: `${base}/README.md`,
+      explicit: true,
+    })).toMatchObject({
+      path: `${base}/README.md`,
+      anchor: '安装说明',
+    });
+  });
+
+  it('支持尖括号包裹、百分号编码与 file URI', () => {
+    expect(parseFileReference('<file:///Users/example/My%20Docs/a.md#L2>')).toMatchObject({
+      path: '/Users/example/My Docs/a.md',
+      line: 2,
+    });
+  });
+
+  it('Markdown 显式相对链接可引用无扩展名文件', () => {
+    expect(parseFileReference('docs/README', { basePath: base, explicit: true })?.path)
+      .toBe(`${base}/docs/README`);
+  });
+
+  it('拒绝外部 URL、域名与普通行内代码', () => {
+    expect(parseFileReference('https://example.com/a.md', { explicit: true })).toBe(null);
+    expect(parseFileReference('obsidian://open?vault=Notes', { explicit: true })).toBe(null);
+    expect(parseFileReference('example.com', { explicit: true })).toBe(null);
+    expect(parseFileReference('useState')).toBe(null);
+    expect(parseFileReference('Math.PI')).toBe(null);
+  });
+
+  it('识别 Office 文件扩展名', () => {
+    expect(parseFileReference('报表.xlsx')?.kind).toBe('file');
+    expect(parseFileReference('路演.pptx')?.kind).toBe('file');
+  });
+});
+
+describe('normalizeFileReferencePath / slugifyHeading', () => {
+  it('规范化分隔符与 dot segments', () => {
+    expect(normalizeFileReferencePath('/a/b/../中文/./c.md')).toBe('/a/中文/c.md');
+    expect(normalizeFileReferencePath('C:\\Users\\x\\..\\y\\a.md')).toBe('C:/Users/y/a.md');
+  });
+
+  it('生成中英文稳定 heading id', () => {
+    expect(slugifyHeading('安装说明')).toBe('安装说明');
+    expect(slugifyHeading('API 配置：Quick Start!')).toBe('api-配置quick-start');
   });
 });
 
