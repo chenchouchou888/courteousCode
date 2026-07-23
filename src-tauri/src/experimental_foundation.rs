@@ -3,7 +3,7 @@
 //!
 //! This module deliberately has no call-site in the current chat/session path.
 //! The only public surface is an explicit Tauri command set guarded by two
-//! environment feature flags.  That keeps v0.14.11 behaviour authoritative
+//! environment feature flags.  That keeps v0.14.12 behaviour authoritative
 //! while giving the next small version a durable, restart-safe integration
 //! seam that can be exercised in an isolated profile.
 

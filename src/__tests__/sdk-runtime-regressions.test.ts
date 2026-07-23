@@ -60,4 +60,10 @@ describe('selected Claude CLI as the SDK runtime', () => {
     expect(resolver).toContain('current_native_version_target_with_home');
     expect(resolver).toContain('canonical_target.parent() == Some(versions_root.as_path())');
   });
+
+  it('keeps the frontend home-directory bridge backed by a registered native command', () => {
+    expect(bridge).toContain("invoke<string>('get_home_dir')");
+    expect(rust).toContain('fn get_home_dir() -> Result<String, String>');
+    expect(rust).toMatch(/write_file_content,\s+get_home_dir,\s+copy_file,/);
+  });
 });

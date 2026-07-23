@@ -19,6 +19,20 @@ export interface ChangelogEntry {
  */
 export const CHANGELOG: ChangelogEntry[] = [
   {
+    version: '0.14.12',
+    date: '2026-07-23',
+    highlights: {
+      zh: [
+        '补回前端 Home 目录桥接对应的原生命令，技能创建、波浪线路径解析和历史会话路径显示不再因命令缺失静默失败',
+        '与上游 v0.11.0 后续维护历史完成兼容收口，同时保留 Black Box 新的作用域感知 MCP 管理器、发布链和默认关闭的下一代架构',
+      ],
+      en: [
+        'Restores the native command behind the frontend home-directory bridge so skill creation, tilde-path resolution, and historical-session path display no longer fail on a missing command',
+        'Reconciles the post-v0.11.0 upstream maintenance history while preserving Black Box’s scope-aware MCP manager, release pipeline, and default-disabled next-generation architecture',
+      ],
+    },
+  },
+  {
     version: '0.14.11',
     date: '2026-07-23',
     highlights: {
