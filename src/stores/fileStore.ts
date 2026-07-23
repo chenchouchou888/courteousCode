@@ -1,13 +1,33 @@
 import { create } from 'zustand';
 import { bridge, FileNode, RecentProject } from '../lib/tauri-bridge';
-import { computeRevealExpansions, findNodeByPath, reconcilePathToRoot } from './fileReveal';
+import {
+  computeRevealExpansions,
+  findNodeByPath,
+  parseFileReference,
+  reconcilePathToRoot,
+  type FileReferenceLocation,
+  type ParsedFileReference,
+} from './fileReveal';
+import { hydrateFolderChildren } from './fileTreeHydration';
 
 export type FileChangeKind = 'created' | 'modified' | 'removed';
 export type PreviewMode = 'preview' | 'source' | 'edit';
 
+export interface FilePreviewLocation extends FileReferenceLocation {
+  /** Makes repeated clicks on the same location observable by the preview. */
+  requestId: number;
+}
+
+interface PendingFileNavigation {
+  path: string;
+  location?: FileReferenceLocation;
+}
+
 // Batch buffer for markFileChanged — collect changes within a single frame, flush once via rAF
 const _pendingChanges = new Map<string, FileChangeKind>();
 let _changeFlushRaf = 0;
+let _previewLocationRequestId = 0;
+const _folderLoadPromises = new Map<string, Promise<void>>();
 
 interface FileState {
   tree: FileNode[];
@@ -16,10 +36,12 @@ interface FileState {
   fileContent: string | null;
   isLoadingContent: boolean;
   previewMode: PreviewMode;
+  previewLocation: FilePreviewLocation | null;
   rootPath: string;
 
   // 文件树展开状态（提到全局：让「聊天点击路径 → 定位」能驱动文件树展开）
   expandedFolders: Set<string>;
+  loadingFolders: Set<string>;
   // 当前被定位高亮的路径（文件或文件夹，与「预览选中」解耦）
   revealTarget: string | null;
 
@@ -28,7 +50,7 @@ interface FileState {
   isSaving: boolean;
 
   // Unsaved changes navigation guard
-  pendingNavigation: string | null;
+  pendingNavigation: PendingFileNavigation | null;
   showUnsavedDialog: boolean;
 
   // Project management
@@ -47,7 +69,7 @@ interface FileState {
   loadTree: (path: string) => Promise<void>;
   /** Refresh the tree without clearing change markers. Optional path overrides rootPath. */
   refreshTree: (overridePath?: string) => Promise<void>;
-  selectFile: (path: string) => Promise<void>;
+  selectFile: (path: string, location?: FileReferenceLocation) => Promise<void>;
   clearSelection: () => void;
   closePreview: () => void;
   setPreviewMode: (mode: PreviewMode) => void;
@@ -71,6 +93,13 @@ interface FileState {
   setDragOverTree: (v: boolean) => void;
   // 展开/折叠单个文件夹
   toggleFolder: (path: string) => void;
+  /** Hydrate a backend depth-boundary folder on demand. */
+  loadFolderChildren: (path: string) => Promise<void>;
+  /** Expand, select and preview a local reference from chat/Markdown. */
+  openFileReference: (
+    reference: ParsedFileReference | string,
+    rootHint?: string,
+  ) => Promise<boolean>;
   // 定位到某路径：展开其所有父目录（文件夹则连自身）并高亮
   revealPath: (path: string) => void;
 }
@@ -82,6 +111,7 @@ export const useFileStore = create<FileState>()((set, get) => ({
   fileContent: null,
   isLoadingContent: false,
   previewMode: 'preview' as PreviewMode,
+  previewLocation: null,
   rootPath: '',
   editContent: null,
   isSaving: false,
@@ -93,6 +123,7 @@ export const useFileStore = create<FileState>()((set, get) => ({
   directoryMissing: false,
   isDragOverTree: false,
   expandedFolders: new Set<string>(),
+  loadingFolders: new Set<string>(),
   revealTarget: null,
 
   loadTree: async (path: string) => {
@@ -104,7 +135,7 @@ export const useFileStore = create<FileState>()((set, get) => ({
       rootPath: path,
       isLoading: true,
       // Clear stale tree immediately when switching directories
-      ...(isNewDir ? { tree: [] } : {}),
+      ...(isNewDir ? { tree: [], expandedFolders: new Set<string>(), loadingFolders: new Set<string>() } : {}),
     });
     try {
       const tree = await bridge.readFileTree(path, 8);
@@ -138,21 +169,48 @@ export const useFileStore = create<FileState>()((set, get) => ({
     }
   },
 
-  selectFile: async (path: string) => {
+  selectFile: async (path: string, location?: FileReferenceLocation) => {
     const { selectedFile, editContent, fileContent } = get();
     const isDirty = editContent !== null && editContent !== fileContent;
 
     // If dirty and trying to navigate to a different file, show dialog
     if (isDirty && path !== selectedFile) {
-      set({ pendingNavigation: path, showUnsavedDialog: true });
+      set({ pendingNavigation: { path, location }, showUnsavedDialog: true });
       return;
     }
 
+    const previewLocation = location === undefined
+      ? null
+      : { ...location, requestId: ++_previewLocationRequestId };
+
     // Toggle selection: click again to deselect
     if (selectedFile === path) {
-      set({ selectedFile: null, fileContent: null, isLoadingContent: false, editContent: null, revealTarget: null });
+      if (location !== undefined) {
+        set({
+          previewMode: location.line ? 'source' : 'preview',
+          previewLocation,
+          revealTarget: path,
+        });
+        return;
+      }
+      set({
+        selectedFile: null,
+        fileContent: null,
+        isLoadingContent: false,
+        editContent: null,
+        revealTarget: null,
+        previewLocation: null,
+      });
     } else {
-      set({ selectedFile: path, fileContent: null, isLoadingContent: true, previewMode: 'preview', editContent: null, revealTarget: path });
+      set({
+        selectedFile: path,
+        fileContent: null,
+        isLoadingContent: true,
+        previewMode: location?.line ? 'source' : 'preview',
+        previewLocation,
+        editContent: null,
+        revealTarget: path,
+      });
 
       // Binary-preview files: skip text reading, render with file:// URL in FilePreview
       const ext = path.split('.').pop()?.toLowerCase() || '';
@@ -208,17 +266,29 @@ export const useFileStore = create<FileState>()((set, get) => ({
     }
   },
 
-  clearSelection: () => set({ selectedFile: null, fileContent: null, isLoadingContent: false, editContent: null }),
+  clearSelection: () => set({
+    selectedFile: null,
+    fileContent: null,
+    isLoadingContent: false,
+    editContent: null,
+    previewLocation: null,
+  }),
 
-  closePreview: () => set({ selectedFile: null, fileContent: null, isLoadingContent: false, editContent: null }),
+  closePreview: () => set({
+    selectedFile: null,
+    fileContent: null,
+    isLoadingContent: false,
+    editContent: null,
+    previewLocation: null,
+  }),
 
   setPreviewMode: (mode: PreviewMode) => {
     const state = get();
     if (mode === 'edit') {
       // Entering edit mode: initialize editContent from fileContent
-      set({ previewMode: mode, editContent: state.fileContent });
+      set({ previewMode: mode, editContent: state.fileContent, previewLocation: null });
     } else {
-      set({ previewMode: mode });
+      set({ previewMode: mode, previewLocation: null });
     }
   },
 
@@ -300,18 +370,22 @@ export const useFileStore = create<FileState>()((set, get) => ({
   confirmDiscard: () => {
     const pending = get().pendingNavigation;
     set({ editContent: null, showUnsavedDialog: false, pendingNavigation: null });
-    if (pending) get().selectFile(pending);
+    if (pending) get().selectFile(pending.path, pending.location);
   },
 
   confirmSaveAndSwitch: async () => {
     const pending = get().pendingNavigation;
     await get().saveFile();
     set({ showUnsavedDialog: false, pendingNavigation: null });
-    if (pending) get().selectFile(pending);
+    if (pending) get().selectFile(pending.path, pending.location);
   },
 
   cancelNavigation: () => {
-    set({ pendingNavigation: null, showUnsavedDialog: false });
+    set({
+      pendingNavigation: null,
+      showUnsavedDialog: false,
+      revealTarget: get().selectedFile,
+    });
   },
 
   // --- New file/folder actions ---
@@ -348,6 +422,95 @@ export const useFileStore = create<FileState>()((set, get) => ({
     if (next.has(path)) next.delete(path);
     else next.add(path);
     set({ expandedFolders: next });
+  },
+
+  loadFolderChildren: async (path: string) => {
+    if (!path) return;
+    const existing = _folderLoadPromises.get(path);
+    if (existing) return existing;
+
+    const task = (async () => {
+      const rootAtStart = get().rootPath;
+      const loading = new Set(get().loadingFolders);
+      loading.add(path);
+      set({ loadingFolders: loading });
+      try {
+        // Each expansion gets another bounded window. Repeating this at later
+        // boundaries supports arbitrary depth without scanning an entire large
+        // workspace during startup.
+        const children = await bridge.readFileTree(path, 8);
+        if (get().rootPath === rootAtStart) {
+          set({ tree: hydrateFolderChildren(get().tree, path, children) });
+        }
+      } finally {
+        const next = new Set(get().loadingFolders);
+        next.delete(path);
+        set({ loadingFolders: next });
+        _folderLoadPromises.delete(path);
+      }
+    })();
+
+    _folderLoadPromises.set(path, task);
+    return task;
+  },
+
+  openFileReference: async (reference, rootHint) => {
+    const fallbackRoot = rootHint || get().rootPath;
+    const parsed = typeof reference === 'string'
+      ? parseFileReference(reference, { basePath: fallbackRoot, explicit: true })
+      : reference;
+    if (!parsed) return false;
+
+    if (fallbackRoot && (get().rootPath !== fallbackRoot || get().tree.length === 0)) {
+      await get().loadTree(fallbackRoot);
+    }
+
+    let parsedPath = parsed.path;
+    if (parsedPath.startsWith('~/')) {
+      try {
+        parsedPath = `${(await bridge.getHomeDir()).replace(/\/$/, '')}/${parsedPath.slice(2)}`;
+      } catch {
+        // Keep the unresolved form; selectFile will surface its normal read error.
+      }
+    }
+
+    const rootPath = get().rootPath;
+    const target = reconcilePathToRoot(parsedPath, rootPath);
+    const toExpand = computeRevealExpansions(target, rootPath, parsed.kind === 'folder');
+
+    // Expand sequentially so every depth-boundary node can hydrate before its
+    // descendant is searched. This supports paths deeper than readFileTree's
+    // bounded startup depth.
+    for (const ancestor of toExpand) {
+      const expanded = new Set(get().expandedFolders);
+      expanded.add(ancestor);
+      set({ expandedFolders: expanded });
+
+      const node = findNodeByPath(get().tree, ancestor);
+      if (node?.is_dir && node.children_truncated) {
+        try {
+          await get().loadFolderChildren(ancestor);
+        } catch {
+          // Keep the best-effort expansion/highlight even if lazy hydration fails.
+        }
+      }
+    }
+
+    const targetNode = findNodeByPath(get().tree, target);
+    if (targetNode?.is_dir) {
+      const expanded = new Set(get().expandedFolders);
+      expanded.add(target);
+      set({ expandedFolders: expanded });
+    }
+    set({ revealTarget: target });
+
+    await get().selectFile(target, {
+      ...(parsed.line ? { line: parsed.line } : {}),
+      ...(parsed.endLine ? { endLine: parsed.endLine } : {}),
+      ...(parsed.column ? { column: parsed.column } : {}),
+      ...(parsed.anchor ? { anchor: parsed.anchor } : {}),
+    });
+    return true;
   },
 
   revealPath: (path: string) => {

@@ -36,12 +36,12 @@ jobs:
           if [[ "$TAG" == *"-alpha"* ]]; then
             echo "edition=alpha" >> $GITHUB_OUTPUT
             echo "prerelease=true" >> $GITHUB_OUTPUT
-            echo "release_name=TCAlpha $TAG" >> $GITHUB_OUTPUT
+            echo "release_name=Black Box Preview $TAG" >> $GITHUB_OUTPUT
             echo "extra_args=--config editions/alpha/tauri.alpha.conf.json" >> $GITHUB_OUTPUT
           else
             echo "edition=stable" >> $GITHUB_OUTPUT
             echo "prerelease=false" >> $GITHUB_OUTPUT
-            echo "release_name=TOKENICODE $TAG" >> $GITHUB_OUTPUT
+            echo "release_name=Black Box $TAG" >> $GITHUB_OUTPUT
             echo "extra_args=" >> $GITHUB_OUTPUT
           fi
 

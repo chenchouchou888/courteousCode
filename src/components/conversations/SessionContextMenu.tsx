@@ -14,11 +14,17 @@ interface SessionContextMenuProps {
   y: number;
   session: SessionListItem;
   onRename: (session: SessionListItem) => void;
+  onFork?: (session: SessionListItem) => void;
+  forkDisabled?: boolean;
+  onCompare?: (session: SessionListItem) => void;
+  compareDisabled?: boolean;
   onRevealInFinder: (session: SessionListItem) => void;
   onExport: (session: SessionListItem) => void;
   onDelete: (session: SessionListItem) => void;
   onPin?: (session: SessionListItem) => void;
   isPinned?: boolean;
+  onArchive?: (session: SessionListItem) => void;
+  isArchived?: boolean;
   // --- Session grouping ---
   /** Create a new group in this session's workspace and drop it in. */
   onCreateGroupWithSession?: (session: SessionListItem) => void;
@@ -40,11 +46,17 @@ export function SessionContextMenu({
   y,
   session,
   onRename,
+  onFork,
+  forkDisabled,
+  onCompare,
+  compareDisabled,
   onRevealInFinder,
   onExport,
   onDelete,
   onPin,
   isPinned,
+  onArchive,
+  isArchived,
   onCreateGroupWithSession,
   availableGroups,
   onAddToGroup,
@@ -91,6 +103,48 @@ export function SessionContextMenu({
         {t('conv.rename')}
       </button>
 
+      {onFork && (
+        <button
+          data-testid={`fork-session-${session.id}`}
+          onClick={() => {
+            if (forkDisabled) return;
+            onClose();
+            onFork(session);
+          }}
+          disabled={forkDisabled}
+          title={forkDisabled ? t('conv.forkRunningBlocked') : t('conv.forkHint')}
+          className={`${itemCls} disabled:opacity-40 disabled:cursor-not-allowed`}
+        >
+          <svg width="12" height="12" viewBox="0 0 16 16" fill="none"
+            stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M3 2v3.5A3.5 3.5 0 006.5 9H13" />
+            <path d="M9.5 5.5L13 9l-3.5 3.5" />
+          </svg>
+          {t('conv.fork')}
+        </button>
+      )}
+
+      {onCompare && (
+        <button
+          data-testid={`compare-session-${session.id}`}
+          onClick={() => {
+            if (compareDisabled) return;
+            onClose();
+            onCompare(session);
+          }}
+          disabled={compareDisabled}
+          title={compareDisabled ? t('conv.compareDisabled') : t('conv.compareHint')}
+          className={`${itemCls} disabled:opacity-40 disabled:cursor-not-allowed`}
+        >
+          <svg width="12" height="12" viewBox="0 0 16 16" fill="none"
+            stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round">
+            <rect x="1.5" y="2.5" width="5.5" height="11" rx="1.5" />
+            <rect x="9" y="2.5" width="5.5" height="11" rx="1.5" />
+          </svg>
+          {t('conv.compareSideBySide')}
+        </button>
+      )}
+
       {onPin && (
         <button onClick={() => { onClose(); onPin(session); }} className={itemCls}>
           <svg width="12" height="12" viewBox="0 0 16 16" fill="none"
@@ -99,6 +153,26 @@ export function SessionContextMenu({
             <path d="M4.5 11.5L1.5 14.5" />
           </svg>
           {isPinned ? t('conv.unpin') : t('conv.pin')}
+        </button>
+      )}
+
+      {onArchive && (
+        <button onClick={() => { onClose(); onArchive(session); }} className={itemCls}>
+          <svg width="12" height="12" viewBox="0 0 16 16" fill="none"
+            stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+            {isArchived ? (
+              <>
+                <path d="M2.5 5.5h11v8h-11z" />
+                <path d="M1.5 2.5h13v3h-13zM8 11V7M5.8 9.2L8 7l2.2 2.2" />
+              </>
+            ) : (
+              <>
+                <path d="M2.5 5.5h11v8h-11z" />
+                <path d="M1.5 2.5h13v3h-13zM6 9h4" />
+              </>
+            )}
+          </svg>
+          {isArchived ? t('conv.unarchive') : t('conv.archive')}
         </button>
       )}
 
